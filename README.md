@@ -1,7 +1,7 @@
 # brownboxbatman
 [![Donate](https://img.shields.io/liberapay/receives/rocketnine.space.svg?logo=liberapay)](https://liberapay.com/rocketnine.space)
 
-Bullet hell video game
+[Bullet hell](https://en.wikipedia.org/wiki/Shoot_%27em_up#Bullet_hell) video game
 
 This game was created for the [32Bit Holiday Game Jam](https://itch.io/jam/32bit-holiday-2021).
 

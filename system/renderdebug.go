@@ -23,7 +23,7 @@ func NewRenderDebugTextSystem(player gohan.Entity) *RenderDebugTextSystem {
 	s := &RenderDebugTextSystem{
 		player:   player,
 		op:       &ebiten.DrawImageOptions{},
-		debugImg: ebiten.NewImage(98, 98),
+		debugImg: ebiten.NewImage(94, 114),
 	}
 
 	return s

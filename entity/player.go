@@ -9,11 +9,6 @@ import (
 	"code.rocketnine.space/tslocum/gohan"
 )
 
-const (
-	spawnX = -100
-	spawnY = 5
-)
-
 func NewPlayer() gohan.Entity {
 	player := ECS.NewEntity()
 
@@ -29,8 +24,10 @@ func NewPlayer() gohan.Entity {
 	ECS.AddComponent(player, weapon)
 
 	ECS.AddComponent(player, &component.SpriteComponent{
-		Image: asset.ImgBrownBat,
+		Image: asset.ImgBat,
 	})
+
+	ECS.AddComponent(player, &component.RailComponent{})
 
 	return player
 }

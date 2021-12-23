@@ -76,9 +76,14 @@ func (s *playerMoveSystem) Update(ctx *gohan.Context) error {
 		return nil
 	}*/
 
-	if (ebiten.IsKeyPressed(ebiten.KeyA) && !ebiten.IsKeyPressed(ebiten.KeyD)) ||
-		(ebiten.IsKeyPressed(ebiten.KeyD) && !ebiten.IsKeyPressed(ebiten.KeyA)) {
-		if ebiten.IsKeyPressed(ebiten.KeyA) {
+	pressLeft := ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyLeft)
+	pressRight := ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyRight)
+	pressUp := ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyUp)
+	pressDown := ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyDown)
+
+	if (pressLeft && !pressRight) ||
+		(pressRight && !pressLeft) {
+		if pressLeft {
 			velocity.X = -moveSpeed
 		} else {
 			velocity.X = moveSpeed
@@ -87,9 +92,9 @@ func (s *playerMoveSystem) Update(ctx *gohan.Context) error {
 		velocity.X = 0
 	}
 
-	if (ebiten.IsKeyPressed(ebiten.KeyW) && !ebiten.IsKeyPressed(ebiten.KeyS)) ||
-		(ebiten.IsKeyPressed(ebiten.KeyS) && !ebiten.IsKeyPressed(ebiten.KeyW)) {
-		if ebiten.IsKeyPressed(ebiten.KeyW) {
+	if (pressUp && !pressDown) ||
+		(pressDown && !pressUp) {
+		if pressUp {
 			velocity.Y = -moveSpeed
 		} else {
 			velocity.Y = moveSpeed

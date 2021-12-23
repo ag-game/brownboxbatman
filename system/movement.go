@@ -152,35 +152,20 @@ func (_ *MovementSystem) Uses() []gohan.ComponentID {
 	}
 }
 
-func (s *MovementSystem) checkFire(ctx *gohan.Context, r image.Rectangle) {
-	for _, fireRect := range s.fireRects {
-		if r.Overlaps(fireRect) {
-			world.World.GameOver = true
-
-			position := component.Position(ctx)
-			s.RecordPosition(position)
-
-			return
-		}
-	}
-}
-
 func (s *MovementSystem) Update(ctx *gohan.Context) error {
-	if world.World.MessageVisible || world.World.GameOver {
+	if world.World.MessageVisible {
+		return nil
+	}
+
+	if world.World.GameOver && ctx.Entity == world.World.Player {
 		return nil
 	}
 
 	position := component.Position(ctx)
 	velocity := component.Velocity(ctx)
 
-	const camMoveSpeed = 0.132
-	if ctx.Entity == world.World.Player && world.World.CamY > 0 {
-		world.World.CamY -= camMoveSpeed
-		position.Y -= camMoveSpeed
-	}
-
 	vx, vy := velocity.X, velocity.Y
-	if (world.World.NoClip || world.World.Debug > 0) && ebiten.IsKeyPressed(ebiten.KeyShift) {
+	if ctx.Entity == world.World.Player && (world.World.NoClip || world.World.Debug != 0) && ebiten.IsKeyPressed(ebiten.KeyShift) {
 		vx, vy = vx*2, vy*2
 	}
 
@@ -203,7 +188,25 @@ func (s *MovementSystem) Update(ctx *gohan.Context) error {
 			diff := (float64(world.World.ScreenH) - world.World.PlayerHeight - screenY) / world.World.CamScale
 			position.Y += diff
 		}
+
+		playerRect := image.Rect(int(position.X), int(position.Y), int(position.X+world.World.PlayerWidth), int(position.Y+world.World.PlayerHeight))
+		for _, r := range world.World.HazardRects {
+			if playerRect.Overlaps(r) {
+				world.World.SetGameOver()
+				return nil
+			}
+		}
+	} else if ctx.Entity == world.World.BrokenPieceA || ctx.Entity == world.World.BrokenPieceB {
+		sprite := ECS.Component(ctx.Entity, component.SpriteComponentID).(*component.SpriteComponent)
+		if ctx.Entity == world.World.BrokenPieceA {
+			sprite.Angle -= 0.05
+		} else {
+			sprite.Angle += 0.05
+		}
 	}
+
+	// TODO check bullet kill player
+
 	return nil
 }
 

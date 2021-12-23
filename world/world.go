@@ -5,6 +5,8 @@ import (
 	"log"
 	"path/filepath"
 
+	"code.rocketnine.space/tslocum/brownboxbatman/entity"
+
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
 	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
@@ -16,6 +18,7 @@ import (
 var World = &GameWorld{
 	GameStarted:  true, // TODO
 	CamScale:     1,
+	CamMoving:    true,
 	PlayerWidth:  8,
 	PlayerHeight: 32,
 }
@@ -39,17 +42,21 @@ type GameWorld struct {
 
 	CamX, CamY float64
 	CamScale   float64
+	CamMoving  bool
 
 	PlayerWidth  float64
 	PlayerHeight float64
 
 	Map             *tiled.Map
 	ObjectGroups    []*tiled.ObjectGroup
+	HazardRects     []image.Rectangle
 	TriggerEntities []gohan.Entity
 	TriggerRects    []image.Rectangle
 	TriggerNames    []string
 
 	NativeResolution bool
+
+	BrokenPieceA, BrokenPieceB gohan.Entity
 }
 
 func SetMessage(message string) {
@@ -131,7 +138,14 @@ func LoadMap(filePath string) {
 					continue
 				}
 
-				_ = createTileEntity(t, x, y)
+				e := createTileEntity(t, x, y)
+				if layer.Name == "CREEPS" {
+					creep := &component.CreepComponent{
+						Health:   1,
+						FireRate: 144 / 2,
+					}
+					ECS.AddComponent(e, creep)
+				}
 			}
 		}
 	}
@@ -174,6 +188,10 @@ func LoadMap(filePath string) {
 				World.TriggerEntities = append(World.TriggerEntities, mapTile)
 				World.TriggerRects = append(World.TriggerRects, ObjectToRect(obj))
 			}
+		} else if grp.Name == "HAZARDS" {
+			for _, obj := range grp.Objects {
+				World.HazardRects = append(World.HazardRects, ObjectToRect(obj))
+			}
 		}
 	}
 }
@@ -181,4 +199,53 @@ func LoadMap(filePath string) {
 func ObjectToRect(o *tiled.Object) image.Rectangle {
 	x, y, w, h := int(o.X), int(o.Y), int(o.Width), int(o.Height)
 	return image.Rect(x, y, x+w, y+h)
+}
+
+func LevelCoordinatesToScreen(x, y float64) (float64, float64) {
+	return (x - World.CamX) * World.CamScale, (y - World.CamY) * World.CamScale
+}
+
+func (w *GameWorld) SetGameOver() {
+	if w.GameOver {
+		return
+	}
+
+	w.GameOver = true
+
+	sprite := ECS.Component(w.Player, component.SpriteComponentID).(*component.SpriteComponent)
+	sprite.Image = ebiten.NewImage(1, 1)
+
+	position := ECS.Component(w.Player, component.PositionComponentID).(*component.PositionComponent)
+	velocity := ECS.Component(w.Player, component.VelocityComponentID).(*component.VelocityComponent)
+
+	xSpeedA := 1.5
+	xSpeedB := -1.5
+	ySpeedA := -1.5
+	ySpeedB := -1.5
+	if velocity.Y > 0 {
+		ySpeedA = 1.5
+		ySpeedB = 1.5
+	} else if velocity.X < 0 {
+		xSpeedA = -1.5
+		xSpeedB = -1.5
+		ySpeedA = -1.5
+		ySpeedB = 1.5
+	} else if velocity.X > 0 {
+		xSpeedA = 1.5
+		xSpeedB = 1.5
+		ySpeedA = -1.5
+		ySpeedB = 1.5
+	}
+
+	w.BrokenPieceA = entity.NewBullet(position.X, position.Y, xSpeedA, ySpeedA)
+	pieceASprite := &component.SpriteComponent{
+		Image: asset.ImgBatBroken1,
+	}
+	ECS.AddComponent(w.BrokenPieceA, pieceASprite)
+
+	w.BrokenPieceB = entity.NewBullet(position.X, position.Y, xSpeedB, ySpeedB)
+	pieceBSprite := &component.SpriteComponent{
+		Image: asset.ImgBatBroken2,
+	}
+	ECS.AddComponent(w.BrokenPieceB, pieceBSprite)
 }

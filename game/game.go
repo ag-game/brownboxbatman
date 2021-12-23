@@ -162,6 +162,10 @@ func (g *game) addSystems() {
 
 	ecs.AddSystem(g.movementSystem)
 
+	ecs.AddSystem(system.NewCreepSystem())
+	ecs.AddSystem(system.NewCameraSystem())
+	ecs.AddSystem(system.NewRailSystem())
+
 	/*ecs.AddSystem(system.NewFireWeaponSystem(g.player))
 
 	ecs.AddSystem(system.NewRenderBackgroundSystem())*/

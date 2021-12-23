@@ -120,8 +120,6 @@ func (s *RenderSystem) renderSprite(x float64, y float64, offsetx float64, offse
 func (s *RenderSystem) Draw(ctx *gohan.Context, screen *ebiten.Image) error {
 	if !world.World.GameStarted {
 		return nil
-	} else if world.World.GameOver {
-		return nil
 	}
 
 	position := component.Position(ctx)
@@ -141,6 +139,6 @@ func (s *RenderSystem) Draw(ctx *gohan.Context, screen *ebiten.Image) error {
 		colorScale = sprite.ColorScale
 	}
 
-	s.renderSprite(position.X, position.Y, 0, 0, 0, 1.0, colorScale, 1.0, sprite.HorizontalFlip, sprite.VerticalFlip, sprite.Image, screen)
+	s.renderSprite(position.X, position.Y, 0, 0, sprite.Angle, 1.0, colorScale, 1.0, sprite.HorizontalFlip, sprite.VerticalFlip, sprite.Image, screen)
 	return nil
 }
