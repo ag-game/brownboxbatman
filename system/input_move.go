@@ -61,7 +61,6 @@ func (s *playerMoveSystem) Update(ctx *gohan.Context) error {
 		} else {
 			world.World.Debug = v
 		}
-		s.movement.UpdateDebugCollisionRects()
 		return nil
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.KeyN) {

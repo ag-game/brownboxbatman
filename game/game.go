@@ -4,8 +4,10 @@ import (
 	"image/color"
 	"log"
 	"math"
+	"math/rand"
 	"os"
 	"sync"
+	"time"
 
 	"code.rocketnine.space/tslocum/brownboxbatman/entity"
 
@@ -64,13 +66,11 @@ type game struct {
 	renderSystem   *system.RenderSystem
 
 	sync.Mutex
-	camScale float64
 }
 
 // NewGame returns a new isometric demo game.
 func NewGame() (*game, error) {
 	g := &game{
-		camScale:     4,
 		audioContext: audio.NewContext(sampleRate),
 		op:           &ebiten.DrawImageOptions{},
 	}
@@ -88,6 +88,10 @@ func NewGame() (*game, error) {
 	}
 
 	asset.ImgWhiteSquare.Fill(color.White)
+
+	asset.LoadSounds(g.audioContext)
+
+	rand.Seed(time.Now().UnixNano())
 
 	return g, nil
 }

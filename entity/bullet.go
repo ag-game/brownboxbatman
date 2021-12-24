@@ -26,7 +26,5 @@ func NewBullet(x, y, xSpeed, ySpeed float64) gohan.Entity {
 
 	ECS.AddComponent(bullet, &component.BulletComponent{})
 
-	ECS.AddComponent(bullet, &component.RailComponent{})
-
 	return bullet
 }

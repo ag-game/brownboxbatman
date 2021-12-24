@@ -3,6 +3,7 @@ package world
 import (
 	"image"
 	"log"
+	"math/rand"
 	"path/filepath"
 
 	"code.rocketnine.space/tslocum/brownboxbatman/entity"
@@ -13,6 +14,17 @@ import (
 	"code.rocketnine.space/tslocum/gohan"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/lafriks/go-tiled"
+)
+
+const (
+	SoundGunshot = iota
+	SoundVampireDie1
+	SoundVampireDie2
+	SoundBat
+	SoundPlayerHurt
+	SoundPlayerDie
+	SoundPickup
+	SoundMunch
 )
 
 var World = &GameWorld{
@@ -39,6 +51,8 @@ type GameWorld struct {
 	GameOver    bool
 
 	MessageVisible bool
+
+	PlayerX, PlayerY float64
 
 	CamX, CamY float64
 	CamScale   float64
@@ -141,8 +155,10 @@ func LoadMap(filePath string) {
 				e := createTileEntity(t, x, y)
 				if layer.Name == "CREEPS" {
 					creep := &component.CreepComponent{
-						Health:   1,
-						FireRate: 144 / 2,
+						Health:     1,
+						FireAmount: 8,
+						FireRate:   144 / 4,
+						Rand:       rand.New(rand.NewSource(int64(t.ID))),
 					}
 					ECS.AddComponent(e, creep)
 				}
@@ -205,32 +221,50 @@ func LevelCoordinatesToScreen(x, y float64) (float64, float64) {
 	return (x - World.CamX) * World.CamScale, (y - World.CamY) * World.CamScale
 }
 
-func (w *GameWorld) SetGameOver() {
+func (w *GameWorld) SetGameOver(vx, vy float64) {
 	if w.GameOver {
 		return
 	}
 
 	w.GameOver = true
 
+	if rand.Intn(100) == 7 {
+		asset.SoundBatHit4.Play()
+	} else {
+		deathSound := rand.Intn(3)
+		switch deathSound {
+		case 0:
+			asset.SoundBatHit1.Play()
+		case 1:
+			asset.SoundBatHit2.Play()
+		case 2:
+			asset.SoundBatHit3.Play()
+		}
+	}
+
 	sprite := ECS.Component(w.Player, component.SpriteComponentID).(*component.SpriteComponent)
 	sprite.Image = ebiten.NewImage(1, 1)
 
 	position := ECS.Component(w.Player, component.PositionComponentID).(*component.PositionComponent)
-	velocity := ECS.Component(w.Player, component.VelocityComponentID).(*component.VelocityComponent)
+
+	if vx == 0 && vy == 0 {
+		velocity := ECS.Component(w.Player, component.VelocityComponentID).(*component.VelocityComponent)
+		vx, vy = velocity.X, velocity.Y
+	}
 
 	xSpeedA := 1.5
 	xSpeedB := -1.5
 	ySpeedA := -1.5
 	ySpeedB := -1.5
-	if velocity.Y > 0 {
+	if vy > 0 {
 		ySpeedA = 1.5
 		ySpeedB = 1.5
-	} else if velocity.X < 0 {
+	} else if vx < 0 {
 		xSpeedA = -1.5
 		xSpeedB = -1.5
 		ySpeedA = -1.5
 		ySpeedB = 1.5
-	} else if velocity.X > 0 {
+	} else if vx > 0 {
 		xSpeedA = 1.5
 		xSpeedB = 1.5
 		ySpeedA = -1.5
