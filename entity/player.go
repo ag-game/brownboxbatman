@@ -1,8 +1,6 @@
 package entity
 
 import (
-	"time"
-
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
 	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
@@ -18,8 +16,8 @@ func NewPlayer() gohan.Entity {
 
 	weapon := &component.WeaponComponent{
 		Damage:      1,
-		FireRate:    100 * time.Millisecond,
-		BulletSpeed: 15,
+		FireRate:    144 / 16,
+		BulletSpeed: 8,
 	}
 	ECS.AddComponent(player, weapon)
 

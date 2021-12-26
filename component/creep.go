@@ -8,12 +8,26 @@ import (
 )
 
 type CreepComponent struct {
+	Active bool
+
 	Health     int
 	FireAmount int
 	FireRate   int // In ticks
-	Ticks      int // Ticks until next action
-	Rand       *rand.Rand
+	FireTicks  int //Ticks until next action
+
+	Movement      int
+	Movements     [][3]float64 // X, Y, pre-delay in ticks
+	MovementTicks int          // Ticks until next action
+
+	DamageTicks int
+
+	Rand *rand.Rand
 }
+
+const (
+	CreepSnowGunner = iota + 1
+	CreepSnowmanHead
+)
 
 var CreepComponentID = ECS.NewComponentID()
 

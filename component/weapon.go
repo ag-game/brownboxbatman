@@ -1,8 +1,6 @@
 package component
 
 import (
-	"time"
-
 	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
 	"code.rocketnine.space/tslocum/gohan"
 )
@@ -12,8 +10,9 @@ type WeaponComponent struct {
 
 	Damage int
 
-	FireRate time.Duration
-	LastFire time.Time
+	// In ticks
+	FireRate int
+	NextFire int
 
 	BulletSpeed float64
 }

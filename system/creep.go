@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// pause time, screen X, screen Y
 type CreepSystem struct {
 }
 
@@ -37,33 +38,67 @@ func (s *CreepSystem) Update(ctx *gohan.Context) error {
 	creep := component.Creep(ctx)
 	position := component.Position(ctx)
 
+	if creep.Health <= 0 {
+		for i, e := range world.World.CreepEntities {
+			if e == ctx.Entity {
+				world.World.CreepRects = append(world.World.CreepRects[:i], world.World.CreepRects[i+1:]...)
+				world.World.CreepEntities = append(world.World.CreepEntities[:i], world.World.CreepEntities[i+1:]...)
+				ctx.RemoveEntity()
+				return nil
+			}
+		}
+	}
+
 	// Skip inactive creeps.
 	sx, sy := world.LevelCoordinatesToScreen(position.X, position.Y)
-	if sx < 0 || sy < 0 || sx > 640 || sy > 480 {
+	inactive := sx < 0 || sy < 0 || sx > 640 || sy > 480
+	if creep.Active != !inactive {
+		creep.Active = !inactive
+	}
+	if inactive {
 		return nil
 	}
 
-	randSpeed := func() float64 {
-		return 0.5 + creep.Rand.Float64()*0.5 + (0.5 - creep.Rand.Float64())
-	}
+	l := len(creep.Movements)
+	if l > creep.Movement {
+		if creep.MovementTicks == 0 {
+			m := creep.Movements[creep.Movement]
+			position.X, position.Y = m[0], m[1]
+			creep.Movement++
 
-	if creep.Ticks == 0 {
-		for i := 0; i < 8; i++ {
-			speedA := randSpeed()
-			speedB := randSpeed()
-
-			if creep.Rand.Intn(2) == 0 {
-				speedA *= -1
-			}
-			if creep.Rand.Intn(2) == 0 {
-				speedB *= -1
-			}
-			entity.NewBullet(position.X, position.Y, speedA, speedB)
+			creep.MovementTicks = int(m[2])
 		}
-		creep.Ticks = creep.FireRate
+		creep.MovementTicks--
 	}
 
-	creep.Ticks--
+	randVelocity := func() (float64, float64) {
+		for {
+			vx := creep.Rand.Float64()*0.5 + (0.5 - creep.Rand.Float64())
+			vy := creep.Rand.Float64()*0.5 + (0.5 - creep.Rand.Float64())
+			if vx > 0.5 || vx < -0.5 || vy > 0.5 || vy < -0.5 {
+				return vx, vy
+			}
+		}
+	}
+
+	if creep.FireTicks == 0 {
+		for i := 0; i < 8; i++ {
+			vx, vy := randVelocity()
+
+			if creep.Rand.Intn(2) == 0 {
+				vx *= -1
+			}
+			if creep.Rand.Intn(2) == 0 {
+				vy *= -1
+			}
+			entity.NewCreepBullet(position.X, position.Y, vx, vy)
+		}
+		creep.FireTicks = creep.FireRate
+	}
+
+	// TODO update colorM based on damageticks
+
+	creep.FireTicks--
 	return nil
 }
 

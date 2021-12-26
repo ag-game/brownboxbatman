@@ -6,11 +6,10 @@ import (
 	"math/rand"
 	"path/filepath"
 
-	"code.rocketnine.space/tslocum/brownboxbatman/entity"
-
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
 	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
+	"code.rocketnine.space/tslocum/brownboxbatman/entity"
 	"code.rocketnine.space/tslocum/gohan"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/lafriks/go-tiled"
@@ -33,6 +32,7 @@ var World = &GameWorld{
 	CamMoving:    true,
 	PlayerWidth:  8,
 	PlayerHeight: 32,
+	TileImages:   make(map[uint32]*ebiten.Image),
 }
 
 type GameWorld struct {
@@ -64,6 +64,8 @@ type GameWorld struct {
 	Map             *tiled.Map
 	ObjectGroups    []*tiled.ObjectGroup
 	HazardRects     []image.Rectangle
+	CreepRects      []image.Rectangle
+	CreepEntities   []gohan.Entity
 	TriggerEntities []gohan.Entity
 	TriggerRects    []image.Rectangle
 	TriggerNames    []string
@@ -71,6 +73,8 @@ type GameWorld struct {
 	NativeResolution bool
 
 	BrokenPieceA, BrokenPieceB gohan.Entity
+
+	TileImages map[uint32]*ebiten.Image
 }
 
 func SetMessage(message string) {
@@ -112,10 +116,9 @@ func LoadMap(filePath string) {
 
 	// Load tiles.
 
-	tileCache := make(map[uint32]*ebiten.Image)
 	for i := uint32(0); i < uint32(tileset.TileCount); i++ {
 		rect := tileset.GetTileRect(i)
-		tileCache[i+tileset.FirstGID] = tilesetImg.SubImage(rect).(*ebiten.Image)
+		World.TileImages[i+tileset.FirstGID] = tilesetImg.SubImage(rect).(*ebiten.Image)
 	}
 
 	createTileEntity := func(t *tiled.LayerTile, x int, y int) gohan.Entity {
@@ -128,7 +131,7 @@ func LoadMap(filePath string) {
 		})
 
 		sprite := &component.SpriteComponent{
-			Image:          tileCache[t.Tileset.FirstGID+t.ID],
+			Image:          World.TileImages[t.Tileset.FirstGID+t.ID],
 			HorizontalFlip: t.HorizontalFlip,
 			VerticalFlip:   t.VerticalFlip,
 			DiagonalFlip:   t.DiagonalFlip,
@@ -147,21 +150,11 @@ func LoadMap(filePath string) {
 					continue // No tile at this position.
 				}
 
-				tileImg := tileCache[t.Tileset.FirstGID+t.ID]
+				tileImg := World.TileImages[t.Tileset.FirstGID+t.ID]
 				if tileImg == nil {
 					continue
 				}
-
-				e := createTileEntity(t, x, y)
-				if layer.Name == "CREEPS" {
-					creep := &component.CreepComponent{
-						Health:     1,
-						FireAmount: 8,
-						FireRate:   144 / 4,
-						Rand:       rand.New(rand.NewSource(int64(t.ID))),
-					}
-					ECS.AddComponent(e, creep)
-				}
+				createTileEntity(t, x, y)
 			}
 		}
 	}
@@ -197,7 +190,7 @@ func LoadMap(filePath string) {
 					Y: obj.Y - 32,
 				})
 				ECS.AddComponent(mapTile, &component.SpriteComponent{
-					Image: tileCache[obj.GID],
+					Image: World.TileImages[obj.GID],
 				})
 
 				World.TriggerNames = append(World.TriggerNames, obj.Name)
@@ -207,6 +200,12 @@ func LoadMap(filePath string) {
 		} else if grp.Name == "HAZARDS" {
 			for _, obj := range grp.Objects {
 				World.HazardRects = append(World.HazardRects, ObjectToRect(obj))
+			}
+		} else if grp.Name == "CREEPS" {
+			for _, obj := range grp.Objects {
+				c := NewCreep(component.CreepSnowGunner, int64(obj.ID), float64(obj.X), float64(obj.Y))
+				World.CreepRects = append(World.CreepRects, ObjectToRect(obj))
+				World.CreepEntities = append(World.CreepEntities, c)
 			}
 		}
 	}
@@ -271,15 +270,55 @@ func (w *GameWorld) SetGameOver(vx, vy float64) {
 		ySpeedB = 1.5
 	}
 
-	w.BrokenPieceA = entity.NewBullet(position.X, position.Y, xSpeedA, ySpeedA)
+	w.BrokenPieceA = entity.NewCreepBullet(position.X, position.Y, xSpeedA, ySpeedA)
 	pieceASprite := &component.SpriteComponent{
 		Image: asset.ImgBatBroken1,
 	}
 	ECS.AddComponent(w.BrokenPieceA, pieceASprite)
 
-	w.BrokenPieceB = entity.NewBullet(position.X, position.Y, xSpeedB, ySpeedB)
+	w.BrokenPieceB = entity.NewCreepBullet(position.X, position.Y, xSpeedB, ySpeedB)
 	pieceBSprite := &component.SpriteComponent{
 		Image: asset.ImgBatBroken2,
 	}
 	ECS.AddComponent(w.BrokenPieceB, pieceBSprite)
+}
+
+// TODO move
+func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
+	creep := ECS.NewEntity()
+
+	ECS.AddComponent(creep, &component.PositionComponent{
+		X: x,
+		Y: y,
+	})
+
+	if creepType == component.CreepSnowmanHead {
+		ECS.AddComponent(creep, &component.VelocityComponent{})
+
+		ECS.AddComponent(creep, &component.CreepComponent{
+			Health:     128,
+			FireAmount: 1,
+			FireRate:   144 * 1.5,
+			Rand:       rand.New(rand.NewSource(creepID)),
+		})
+	} else {
+		ECS.AddComponent(creep, &component.CreepComponent{
+			Health:     64,
+			FireAmount: 8,
+			FireRate:   144 / 4,
+			Rand:       rand.New(rand.NewSource(creepID)),
+		})
+	}
+
+	img := asset.ImgBat
+	if creepType == component.CreepSnowmanHead {
+		img = World.TileImages[8]
+	} else if creepType == component.CreepSnowGunner {
+		img = World.TileImages[50]
+	}
+	ECS.AddComponent(creep, &component.SpriteComponent{
+		Image: img,
+	})
+
+	return creep
 }

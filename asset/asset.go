@@ -19,6 +19,7 @@ const sampleRate = 44100
 var FS embed.FS
 
 var ImgWhiteSquare = ebiten.NewImage(8, 8)
+var ImgBlackSquare = ebiten.NewImage(8, 8)
 
 var (
 	ImgBat        = LoadImage("image/bat.png")
@@ -35,6 +36,7 @@ var (
 
 func init() {
 	ImgWhiteSquare.Fill(color.White)
+	ImgBlackSquare.Fill(color.Black)
 }
 
 func LoadSounds(ctx *audio.Context) {

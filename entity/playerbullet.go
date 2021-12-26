@@ -7,7 +7,7 @@ import (
 	"code.rocketnine.space/tslocum/gohan"
 )
 
-func NewBullet(x, y, xSpeed, ySpeed float64) gohan.Entity {
+func NewPlayerBullet(x, y, xSpeed, ySpeed float64) gohan.Entity {
 	bullet := ECS.NewEntity()
 
 	ECS.AddComponent(bullet, &component.PositionComponent{
@@ -21,10 +21,10 @@ func NewBullet(x, y, xSpeed, ySpeed float64) gohan.Entity {
 	})
 
 	ECS.AddComponent(bullet, &component.SpriteComponent{
-		Image: asset.ImgWhiteSquare,
+		Image: asset.ImgBlackSquare,
 	})
 
-	ECS.AddComponent(bullet, &component.BulletComponent{})
+	ECS.AddComponent(bullet, &component.PlayerBulletComponent{})
 
 	return bullet
 }

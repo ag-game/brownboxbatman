@@ -75,10 +75,10 @@ func (s *playerMoveSystem) Update(ctx *gohan.Context) error {
 		return nil
 	}*/
 
-	pressLeft := ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyLeft)
-	pressRight := ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyRight)
-	pressUp := ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyUp)
-	pressDown := ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyDown)
+	pressLeft := ebiten.IsKeyPressed(ebiten.KeyLeft)
+	pressRight := ebiten.IsKeyPressed(ebiten.KeyRight)
+	pressUp := ebiten.IsKeyPressed(ebiten.KeyUp)
+	pressDown := ebiten.IsKeyPressed(ebiten.KeyDown)
 
 	if (pressLeft && !pressRight) ||
 		(pressRight && !pressLeft) {

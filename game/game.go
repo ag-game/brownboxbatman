@@ -163,6 +163,7 @@ func (g *game) addSystems() {
 	g.movementSystem = system.NewMovementSystem()
 
 	ecs.AddSystem(system.NewPlayerMoveSystem(g.player, g.movementSystem))
+	ecs.AddSystem(system.NewplayerFireSystem())
 
 	ecs.AddSystem(g.movementSystem)
 

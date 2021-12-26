@@ -113,20 +113,47 @@ func (s *MovementSystem) Update(ctx *gohan.Context) error {
 		}
 	}
 
-	// Check bullet collision.
+	// Check creepBullet collision.
 	if world.World.NoClip {
 		return nil
 	}
-	bullet := ECS.Component(ctx.Entity, component.BulletComponentID)
 	bulletSize := 8.0
-	if bullet != nil {
-		r := image.Rect(int(position.X), int(position.Y), int(position.X+bulletSize), int(position.Y+bulletSize))
+	bulletRect := image.Rect(int(position.X), int(position.Y), int(position.X+bulletSize), int(position.Y+bulletSize))
 
+	creepBullet := ECS.Component(ctx.Entity, component.CreepBulletComponentID)
+	playerBullet := ECS.Component(ctx.Entity, component.PlayerBulletComponentID)
+
+	// Check hazard collisions.
+	if creepBullet != nil || playerBullet != nil {
+		for _, hazardRect := range world.World.HazardRects {
+			if bulletRect.Overlaps(hazardRect) {
+				ctx.RemoveEntity()
+				return nil
+			}
+		}
+	}
+
+	if creepBullet != nil {
 		playerRect := image.Rect(int(world.World.PlayerX), int(world.World.PlayerY), int(world.World.PlayerX+world.World.PlayerWidth), int(world.World.PlayerY+world.World.PlayerHeight))
 
-		if playerRect.Overlaps(r) {
+		if bulletRect.Overlaps(playerRect) {
 			world.World.SetGameOver(velocity.X, velocity.Y)
 			return nil
+		}
+		return nil
+	}
+
+	if playerBullet != nil {
+		for i, creepRect := range world.World.CreepRects {
+			if bulletRect.Overlaps(creepRect) {
+				creep := ECS.Component(world.World.CreepEntities[i], component.CreepComponentID).(*component.CreepComponent)
+				if creep.Active {
+					creep.Health--
+					creep.DamageTicks = 144 / 2
+					ctx.RemoveEntity()
+					return nil
+				}
+			}
 		}
 	}
 
