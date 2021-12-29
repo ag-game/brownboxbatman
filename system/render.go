@@ -4,6 +4,10 @@ import (
 	_ "image/png"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+
+	"code.rocketnine.space/tslocum/brownboxbatman/asset"
+
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
 	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
 	"code.rocketnine.space/tslocum/brownboxbatman/world"
@@ -25,7 +29,9 @@ const (
 type RenderSystem struct {
 	ScreenW int
 	ScreenH int
-	op      *ebiten.DrawImageOptions
+
+	img *ebiten.Image
+	op  *ebiten.DrawImageOptions
 
 	camScale float64
 
@@ -35,6 +41,7 @@ type RenderSystem struct {
 func NewRenderSystem() *RenderSystem {
 	s := &RenderSystem{
 		renderer: ECS.NewEntity(),
+		img:      ebiten.NewImage(320, 100),
 		op:       &ebiten.DrawImageOptions{},
 		camScale: 1,
 		ScreenW:  640,
@@ -119,6 +126,49 @@ func (s *RenderSystem) renderSprite(x float64, y float64, offsetx float64, offse
 
 func (s *RenderSystem) Draw(ctx *gohan.Context, screen *ebiten.Image) error {
 	if !world.World.GameStarted {
+		if ctx.Entity == world.World.Player {
+			world.World.GameStartedTicks++
+
+			pct := float64(world.World.GameStartedTicks) / (144 * 1)
+			if pct > 1 {
+				pct = 1
+			}
+			s.op.GeoM.Reset()
+			s.op.ColorM.Reset()
+			s.op.ColorM.Scale(1, 1, 1, pct)
+			screen.DrawImage(asset.ImgTitle1, s.op)
+			s.op.ColorM.Reset()
+
+			if world.World.GameStartedTicks > 144*2 {
+				pct = float64(world.World.GameStartedTicks-(144*2)) / (144 * 1.5)
+				if pct > 1 {
+					pct = 1
+				}
+				s.op.ColorM.Reset()
+				s.op.ColorM.Scale(1, 1, 1, pct)
+				screen.DrawImage(asset.ImgTitle2, s.op)
+			}
+
+			if world.World.GameStartedTicks > 144*4 {
+				pct = float64(world.World.GameStartedTicks-(144*4)) / (144 * 0.5)
+				if pct > 1 {
+					pct = 1
+				}
+				s.op.ColorM.Reset()
+				s.op.ColorM.Scale(1, 1, 1, pct)
+				screen.DrawImage(asset.ImgTitle3, s.op)
+
+				if world.World.GameStartedTicks > 144*6 && world.World.GameStartedTicks%(144*2) < 144*1.5 {
+					s.img.Clear()
+					ebitenutil.DebugPrint(s.img, "PRESS <ENTER> OR <START> OR <LMB>")
+
+					s.op.GeoM.Scale(2, 2)
+					s.op.GeoM.Translate(120, 387)
+					screen.DrawImage(s.img, s.op)
+				}
+			}
+			s.op.ColorM.Reset()
+		}
 		return nil
 	}
 

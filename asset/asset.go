@@ -22,9 +22,15 @@ var ImgWhiteSquare = ebiten.NewImage(8, 8)
 var ImgBlackSquare = ebiten.NewImage(8, 8)
 
 var (
+	ImgTitle1 = LoadImage("image/title1.png")
+	ImgTitle2 = LoadImage("image/title2.png")
+	ImgTitle3 = LoadImage("image/title3.png")
+
 	ImgBat        = LoadImage("image/bat.png")
 	ImgBatBroken1 = LoadImage("image/bat_broken1.png")
 	ImgBatBroken2 = LoadImage("image/bat_broken2.png")
+
+	ImgSnowflake = LoadImage("image/snowflake.png")
 )
 
 var (

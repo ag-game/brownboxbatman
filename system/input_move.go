@@ -68,12 +68,19 @@ func (s *playerMoveSystem) Update(ctx *gohan.Context) error {
 		return nil
 	}
 
-	/*if world.World.MessageVisible {
+	if !world.World.GameStarted {
+		if ebiten.IsKeyPressed(ebiten.KeyEnter) || ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+			world.World.GameStarted = true
+		}
+		return nil
+	}
+
+	if world.World.MessageVisible {
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			world.World.MessageVisible = false
 		}
 		return nil
-	}*/
+	}
 
 	pressLeft := ebiten.IsKeyPressed(ebiten.KeyLeft)
 	pressRight := ebiten.IsKeyPressed(ebiten.KeyRight)

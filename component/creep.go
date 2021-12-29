@@ -25,7 +25,7 @@ type CreepComponent struct {
 }
 
 const (
-	CreepSnowGunner = iota + 1
+	CreepSnowblower = iota + 1
 	CreepSnowmanHead
 )
 

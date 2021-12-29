@@ -27,7 +27,6 @@ const (
 )
 
 var World = &GameWorld{
-	GameStarted:  true, // TODO
 	CamScale:     1,
 	CamMoving:    true,
 	PlayerWidth:  8,
@@ -47,8 +46,9 @@ type GameWorld struct {
 	Debug  int
 	NoClip bool
 
-	GameStarted bool
-	GameOver    bool
+	GameStarted      bool
+	GameStartedTicks int
+	GameOver         bool
 
 	MessageVisible bool
 
@@ -203,7 +203,7 @@ func LoadMap(filePath string) {
 			}
 		} else if grp.Name == "CREEPS" {
 			for _, obj := range grp.Objects {
-				c := NewCreep(component.CreepSnowGunner, int64(obj.ID), float64(obj.X), float64(obj.Y))
+				c := NewCreep(component.CreepSnowblower, int64(obj.ID), float64(obj.X), float64(obj.Y))
 				World.CreepRects = append(World.CreepRects, ObjectToRect(obj))
 				World.CreepEntities = append(World.CreepEntities, c)
 			}
@@ -313,7 +313,7 @@ func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
 	img := asset.ImgBat
 	if creepType == component.CreepSnowmanHead {
 		img = World.TileImages[8]
-	} else if creepType == component.CreepSnowGunner {
+	} else if creepType == component.CreepSnowblower {
 		img = World.TileImages[50]
 	}
 	ECS.AddComponent(creep, &component.SpriteComponent{

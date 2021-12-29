@@ -33,7 +33,7 @@ func (_ *playerFireSystem) Uses() []gohan.ComponentID {
 }
 
 func (s *playerFireSystem) Update(ctx *gohan.Context) error {
-	if world.World.GameOver {
+	if !world.World.GameStarted || world.World.GameOver {
 		return nil
 	}
 

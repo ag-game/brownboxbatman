@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="20" height="120" tilewidth="32" tileheight="32" infinite="0" backgroundcolor="#181818" nextlayerid="7" nextobjectid="80">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="20" height="120" tilewidth="32" tileheight="32" infinite="0" backgroundcolor="#181818" nextlayerid="7" nextobjectid="129">
  <tileset firstgid="1" name="tileset" tilewidth="32" tileheight="32" tilecount="72" columns="9">
   <image source="../image/tileset/tileset.png" width="288" height="256"/>
  </tileset>
@@ -172,25 +172,25 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+49,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+58,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+67,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,59,60,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+3,0,0,0,54,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,61,62,63,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,0,0,0,
+0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -255,11 +255,8 @@
   <object id="50" gid="50" x="288" y="3232" width="32" height="32"/>
   <object id="52" gid="52" x="96" y="2880" width="32" height="32"/>
   <object id="53" gid="52" x="96" y="2816" width="32" height="32"/>
-  <object id="54" gid="52" x="96" y="2752" width="32" height="32"/>
   <object id="55" gid="50" x="544" y="2304" width="32" height="32"/>
   <object id="56" gid="50" x="448" y="2304" width="32" height="32"/>
-  <object id="58" gid="50" x="160" y="2304" width="32" height="32"/>
-  <object id="60" gid="50" x="64" y="2304" width="32" height="32"/>
   <object id="61" gid="50" x="160" y="1472" width="32" height="32"/>
   <object id="62" gid="50" x="320" y="1536" width="32" height="32"/>
   <object id="63" gid="50" x="512" y="1600" width="32" height="32"/>
@@ -271,6 +268,38 @@
   <object id="73" gid="52" x="32" y="1152" width="32" height="32"/>
   <object id="75" gid="52" x="32" y="992" width="32" height="32"/>
   <object id="78" gid="50" x="608" y="1152" width="32" height="32"/>
+  <object id="80" gid="50" x="128" y="2144" width="32" height="32"/>
+  <object id="94" gid="52" x="32" y="544" width="32" height="32"/>
+  <object id="95" gid="52" x="64" y="576" width="32" height="32"/>
+  <object id="96" gid="52" x="32" y="608" width="32" height="32"/>
+  <object id="97" gid="50" x="608" y="768" width="32" height="32"/>
+  <object id="98" gid="50" x="544" y="768" width="32" height="32"/>
+  <object id="99" gid="50" x="544" y="832" width="32" height="32"/>
+  <object id="100" gid="50" x="608" y="832" width="32" height="32"/>
+  <object id="101" gid="50" x="416" y="192" width="32" height="32"/>
+  <object id="102" gid="50" x="480" y="256" width="32" height="32"/>
+  <object id="103" gid="50" x="576" y="320" width="32" height="32"/>
+  <object id="104" gid="50" x="352" y="96" width="32" height="32"/>
+  <object id="105" gid="50" x="320" y="32" width="32" height="32"/>
+  <object id="106" gid="52" x="0" y="288" width="32" height="32"/>
+  <object id="107" gid="52" x="96" y="256" width="32" height="32"/>
+  <object id="108" gid="52" x="160" y="192" width="32" height="32"/>
+  <object id="109" gid="52" x="224" y="128" width="32" height="32"/>
+  <object id="110" gid="52" x="256" y="64" width="32" height="32"/>
+  <object id="114" gid="50" x="544" y="192" width="32" height="32"/>
+  <object id="115" gid="50" x="448" y="128" width="32" height="32"/>
+  <object id="116" gid="50" x="480" y="64" width="32" height="32"/>
+  <object id="117" gid="50" x="576" y="128" width="32" height="32"/>
+  <object id="119" gid="50" x="608" y="32" width="32" height="32"/>
+  <object id="120" gid="52" x="0" y="32" width="32" height="32"/>
+  <object id="121" gid="52" x="0" y="96" width="32" height="32"/>
+  <object id="122" gid="52" x="64" y="64" width="32" height="32"/>
+  <object id="123" gid="52" x="0" y="192" width="32" height="32"/>
+  <object id="124" gid="52" x="64" y="128" width="32" height="32"/>
+  <object id="125" gid="52" x="128" y="96" width="32" height="32"/>
+  <object id="126" gid="52" x="160" y="32" width="32" height="32"/>
+  <object id="127" gid="50" x="416" y="32" width="32" height="32"/>
+  <object id="128" gid="50" x="544" y="64" width="32" height="32"/>
  </objectgroup>
  <objectgroup color="#ce0003" id="5" name="HAZARDS">
   <object id="1" x="486" y="3392" width="16" height="27"/>
@@ -319,5 +348,17 @@
   <object id="45" x="6" y="2656" width="17" height="27"/>
   <object id="46" x="67" y="2826" width="24" height="16"/>
   <object id="47" x="129" y="2769" width="28" height="9"/>
+  <object id="82" x="0" y="1376" width="7" height="64"/>
+  <object id="83" x="38" y="1376" width="17" height="28"/>
+  <object id="84" x="66" y="1453" width="21" height="33"/>
+  <object id="85" x="37" y="1508" width="14" height="14"/>
+  <object id="86" x="9" y="1607" width="11" height="15"/>
+  <object id="87" x="40" y="1760" width="12" height="19"/>
+  <object id="88" x="45" y="1574" width="8" height="17"/>
+  <object id="89" x="75" y="1557" width="8" height="17"/>
+  <object id="90" x="422" y="1714" width="15" height="27"/>
+  <object id="91" x="390" y="1952" width="17" height="27"/>
+  <object id="92" x="451" y="1898" width="22" height="16"/>
+  <object id="93" x="617" y="1863" width="11" height="15"/>
  </objectgroup>
 </map>

@@ -59,7 +59,7 @@ func (_ *MovementSystem) Uses() []gohan.ComponentID {
 }
 
 func (s *MovementSystem) Update(ctx *gohan.Context) error {
-	if world.World.MessageVisible {
+	if !world.World.GameStarted || world.World.MessageVisible {
 		return nil
 	}
 

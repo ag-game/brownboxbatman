@@ -149,8 +149,6 @@ func (g *game) Update() error {
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{100, 100, 100, 255})
-
 	err := ECS.Draw(screen)
 	if err != nil {
 		panic(err)
