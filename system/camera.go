@@ -29,7 +29,7 @@ func (_ *CameraSystem) Uses() []gohan.ComponentID {
 }
 
 func (s *CameraSystem) Update(ctx *gohan.Context) error {
-	if world.World.MessageVisible || !world.World.GameStarted || world.World.GameOver {
+	if !world.World.GameStarted || world.World.GameOver {
 		return nil
 	}
 

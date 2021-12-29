@@ -31,7 +31,7 @@ func (_ *CreepSystem) Uses() []gohan.ComponentID {
 }
 
 func (s *CreepSystem) Update(ctx *gohan.Context) error {
-	if world.World.MessageVisible || !world.World.GameStarted {
+	if !world.World.GameStarted {
 		return nil
 	}
 

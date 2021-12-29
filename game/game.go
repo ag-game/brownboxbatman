@@ -9,14 +9,12 @@ import (
 	"sync"
 	"time"
 
-	"code.rocketnine.space/tslocum/brownboxbatman/entity"
-
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
 	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
+	"code.rocketnine.space/tslocum/brownboxbatman/entity"
 	"code.rocketnine.space/tslocum/brownboxbatman/system"
 	"code.rocketnine.space/tslocum/brownboxbatman/world"
-	"code.rocketnine.space/tslocum/gohan"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"golang.org/x/text/language"
@@ -51,8 +49,6 @@ const sampleRate = 44100
 type game struct {
 	w, h int
 
-	player gohan.Entity
-
 	audioContext *audio.Context
 
 	op *ebiten.DrawImageOptions
@@ -64,6 +60,8 @@ type game struct {
 
 	movementSystem *system.MovementSystem
 	renderSystem   *system.RenderSystem
+
+	addedSystems bool
 
 	sync.Mutex
 }
@@ -78,21 +76,6 @@ func NewGame() (*game, error) {
 	const numEntities = 30000
 	ECS.Preallocate(numEntities)
 
-	g.changeMap("map/m1.tmx")
-
-	g.addSystems()
-
-	err := g.loadAssets()
-	if err != nil {
-		return nil, err
-	}
-
-	asset.ImgWhiteSquare.Fill(color.White)
-
-	asset.LoadSounds(g.audioContext)
-
-	rand.Seed(time.Now().UnixNano())
-
 	return g, nil
 }
 
@@ -105,7 +88,6 @@ func (g *game) changeMap(filePath string) {
 
 	if world.World.Player == 0 {
 		world.World.Player = entity.NewPlayer()
-		g.player = world.World.Player
 	}
 
 	const playerStartOffset = 128
@@ -114,7 +96,7 @@ func (g *game) changeMap(filePath string) {
 	w := float64(world.World.Map.Width * world.World.Map.TileWidth)
 	h := float64(world.World.Map.Height * world.World.Map.TileHeight)
 
-	position := ECS.Component(g.player, component.PositionComponentID).(*component.PositionComponent)
+	position := ECS.Component(world.World.Player, component.PositionComponentID).(*component.PositionComponent)
 	position.X, position.Y = w/2, h-playerStartOffset
 
 	world.World.CamX, world.World.CamY = 0, h-camStartOffset
@@ -141,6 +123,32 @@ func (g *game) Update() error {
 		return nil
 	}
 
+	if world.World.ResetGame {
+		world.Reset()
+
+		g.changeMap("map/m1.tmx")
+
+		if !g.addedSystems {
+			g.addSystems()
+
+			err := g.loadAssets()
+			if err != nil {
+				return err
+			}
+
+			asset.ImgWhiteSquare.Fill(color.White)
+
+			asset.LoadSounds(g.audioContext)
+
+			g.addedSystems = true // TODO
+		}
+
+		rand.Seed(time.Now().UnixNano())
+
+		world.World.ResetGame = false
+		world.World.GameOver = false
+	}
+
 	err := ECS.Update()
 	if err != nil {
 		return err
@@ -160,7 +168,7 @@ func (g *game) addSystems() {
 
 	g.movementSystem = system.NewMovementSystem()
 
-	ecs.AddSystem(system.NewPlayerMoveSystem(g.player, g.movementSystem))
+	ecs.AddSystem(system.NewPlayerMoveSystem(world.World.Player, g.movementSystem))
 	ecs.AddSystem(system.NewplayerFireSystem())
 
 	ecs.AddSystem(g.movementSystem)
@@ -169,19 +177,21 @@ func (g *game) addSystems() {
 	ecs.AddSystem(system.NewCameraSystem())
 	ecs.AddSystem(system.NewRailSystem())
 
-	/*ecs.AddSystem(system.NewFireWeaponSystem(g.player))
+	/*ecs.AddSystem(system.NewFireWeaponSystem(world.World.Player))
 
 	ecs.AddSystem(system.NewRenderBackgroundSystem())*/
 
 	g.renderSystem = system.NewRenderSystem()
 	ecs.AddSystem(g.renderSystem)
 
-	/*g.messageSystem = system.NewRenderMessageSystem(g.player)
+	/*g.messageSystem = system.NewRenderMessageSystem(world.World.Player)
 	ecs.AddSystem(g.messageSystem)*/
 
-	ecs.AddSystem(system.NewRenderDebugTextSystem(g.player))
+	ecs.AddSystem(system.NewRenderMessageSystem())
 
-	ecs.AddSystem(system.NewProfileSystem(g.player))
+	ecs.AddSystem(system.NewRenderDebugTextSystem(world.World.Player))
+
+	ecs.AddSystem(system.NewProfileSystem(world.World.Player))
 
 	// TODO
 	/*
@@ -195,7 +205,7 @@ func (g *game) loadAssets() error {
 }
 
 func (g *game) WarpTo(x, y float64) {
-	position := ECS.Component(g.player, component.PositionComponentID).(*component.PositionComponent)
+	position := ECS.Component(world.World.Player, component.PositionComponentID).(*component.PositionComponent)
 	position.X, position.Y = x, y
 	log.Printf("Warped to %.2f,%.2f", x, y)
 }

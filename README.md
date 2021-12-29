@@ -25,6 +25,11 @@ Run `~/go/bin/brownboxbatman` to play.
 
 Please share issues and suggestions [here](https://code.rocketnine.space/tslocum/brownboxbatman/issues).
 
+## Credits
+
+- [Trevor Slocum](https://rocketnine.space) - Game design and programming
+- [node punk](https://open.spotify.com/artist/15eFpWQPNRxB89PnFNWvjU?si=z-jfVwYHTxugaC-BGZiyNg) - Music
+
 ## Dependencies
 
 - [ebiten](https://github.com/hajimehoshi/ebiten) - Game engine

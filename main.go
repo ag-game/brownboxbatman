@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"code.rocketnine.space/tslocum/brownboxbatman/world"
+
 	"code.rocketnine.space/tslocum/brownboxbatman/game"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -26,6 +28,10 @@ func main() {
 	}
 
 	parseFlags()
+
+	if world.World.Debug == 0 {
+		world.SetMessage("MOVE: ARROW KEYS\nFIRE: Z KEY\nMUTE: M KEY", 144*4)
+	}
 
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc,

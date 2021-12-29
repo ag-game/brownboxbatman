@@ -25,8 +25,8 @@ func parseFlags() {
 		ebiten.SetFullscreen(true)
 	}
 
-	if noSplash {
-		world.World.GameStarted = true
+	if noSplash || world.World.Debug > 0 {
+		world.StartGame()
 		//world.World.MessageVisible = false
 	}
 }

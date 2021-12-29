@@ -6,6 +6,7 @@ import (
 )
 
 type CreepBulletComponent struct {
+	Invulnerable bool // Invulnerable to hazards
 }
 
 var CreepBulletComponentID = ECS.NewComponentID()

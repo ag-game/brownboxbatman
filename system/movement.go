@@ -59,7 +59,7 @@ func (_ *MovementSystem) Uses() []gohan.ComponentID {
 }
 
 func (s *MovementSystem) Update(ctx *gohan.Context) error {
-	if !world.World.GameStarted || world.World.MessageVisible {
+	if !world.World.GameStarted {
 		return nil
 	}
 
@@ -78,6 +78,7 @@ func (s *MovementSystem) Update(ctx *gohan.Context) error {
 	position.X, position.Y = position.X+vx, position.Y+vy
 
 	// Force player to remain within the screen bounds.
+	// TODO same for bullets
 	if ctx.Entity == world.World.Player {
 		screenX, screenY := s.levelCoordinatesToScreen(position.X, position.Y)
 		if screenX < 0 {
@@ -125,10 +126,17 @@ func (s *MovementSystem) Update(ctx *gohan.Context) error {
 
 	// Check hazard collisions.
 	if creepBullet != nil || playerBullet != nil {
-		for _, hazardRect := range world.World.HazardRects {
-			if bulletRect.Overlaps(hazardRect) {
-				ctx.RemoveEntity()
-				return nil
+		var invulnerable bool
+		if creepBullet != nil {
+			b := creepBullet.(*component.CreepBulletComponent)
+			invulnerable = b.Invulnerable
+		}
+		if !invulnerable {
+			for _, hazardRect := range world.World.HazardRects {
+				if bulletRect.Overlaps(hazardRect) {
+					ctx.RemoveEntity()
+					return nil
+				}
 			}
 		}
 	}

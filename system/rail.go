@@ -27,7 +27,7 @@ func (_ *RailSystem) Uses() []gohan.ComponentID {
 }
 
 func (s *RailSystem) Update(ctx *gohan.Context) error {
-	if !world.World.GameStarted || world.World.MessageVisible || world.World.GameOver || !world.World.CamMoving {
+	if !world.World.GameStarted || world.World.GameOver || !world.World.CamMoving {
 		return nil
 	}
 

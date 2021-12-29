@@ -1,16 +1,16 @@
 package asset
 
 import (
+	"bytes"
 	"embed"
 	"image"
 	"image/color"
 	_ "image/png"
 
-	"github.com/hajimehoshi/ebiten/v2/audio/wav"
-
-	"github.com/hajimehoshi/ebiten/v2/audio"
-
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 )
 
 const sampleRate = 44100
@@ -38,6 +38,8 @@ var (
 	SoundBatHit2 *audio.Player
 	SoundBatHit3 *audio.Player
 	SoundBatHit4 *audio.Player
+
+	SoundLevelMusic *audio.Player
 )
 
 func init() {
@@ -50,6 +52,10 @@ func LoadSounds(ctx *audio.Context) {
 	SoundBatHit2 = LoadWAV(ctx, "sound/bat_hit/hit2.wav")
 	SoundBatHit3 = LoadWAV(ctx, "sound/bat_hit/hit3.wav")
 	SoundBatHit4 = LoadWAV(ctx, "sound/bonk.wav")
+
+	SoundLevelMusic = LoadOGG(ctx, "sound/level_music.ogg")
+
+	SoundLevelMusic.SetVolume(0.5)
 }
 
 func LoadImage(p string) *ebiten.Image {
@@ -88,6 +94,29 @@ func LoadWAV(context *audio.Context, p string) *audio.Player {
 	}
 
 	player, err := context.NewPlayer(stream)
+	if err != nil {
+		panic(err)
+	}
+
+	// Workaround to prevent delays when playing for the first time.
+	player.SetVolume(0)
+	player.Play()
+	player.Pause()
+	player.Rewind()
+	player.SetVolume(1)
+
+	return player
+}
+
+func LoadOGG(context *audio.Context, p string) *audio.Player {
+	b := LoadBytes(p)
+
+	stream, err := vorbis.DecodeWithSampleRate(sampleRate, bytes.NewReader(b))
+	if err != nil {
+		panic(err)
+	}
+
+	player, err := context.NewPlayer(audio.NewInfiniteLoop(stream, stream.Length()))
 	if err != nil {
 		panic(err)
 	}

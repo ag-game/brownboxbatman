@@ -3,6 +3,8 @@ package system
 import (
 	"os"
 
+	"code.rocketnine.space/tslocum/brownboxbatman/asset"
+
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
 	"code.rocketnine.space/tslocum/brownboxbatman/world"
 	"code.rocketnine.space/tslocum/gohan"
@@ -70,14 +72,22 @@ func (s *playerMoveSystem) Update(ctx *gohan.Context) error {
 
 	if !world.World.GameStarted {
 		if ebiten.IsKeyPressed(ebiten.KeyEnter) || ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-			world.World.GameStarted = true
+			world.StartGame()
 		}
 		return nil
 	}
 
-	if world.World.MessageVisible {
+	if inpututil.IsKeyJustPressed(ebiten.KeyM) {
+		if asset.SoundLevelMusic.IsPlaying() {
+			asset.SoundLevelMusic.Pause()
+		} else {
+			asset.SoundLevelMusic.Play()
+		}
+	}
+
+	if world.World.GameOver {
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			world.World.MessageVisible = false
+			world.World.ResetGame = true
 		}
 		return nil
 	}

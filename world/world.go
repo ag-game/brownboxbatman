@@ -3,6 +3,7 @@ package world
 import (
 	"image"
 	"log"
+	"math"
 	"math/rand"
 	"path/filepath"
 
@@ -32,6 +33,7 @@ var World = &GameWorld{
 	PlayerWidth:  8,
 	PlayerHeight: 32,
 	TileImages:   make(map[uint32]*ebiten.Image),
+	ResetGame:    true,
 }
 
 type GameWorld struct {
@@ -50,7 +52,11 @@ type GameWorld struct {
 	GameStartedTicks int
 	GameOver         bool
 
-	MessageVisible bool
+	MessageVisible  bool
+	MessageTicks    int
+	MessageDuration int
+	MessageUpdated  bool
+	MessageText     string
 
 	PlayerX, PlayerY float64
 
@@ -75,15 +81,32 @@ type GameWorld struct {
 	BrokenPieceA, BrokenPieceB gohan.Entity
 
 	TileImages map[uint32]*ebiten.Image
-}
 
-func SetMessage(message string) {
-	// TODO
+	ResetGame bool
+
+	resetTipShown bool
 }
 
 func TileToGameCoords(x, y int) (float64, float64) {
 	//return float64(x) * 32, float64(g.currentMap.Height*32) - float64(y)*32 - 32
 	return float64(x) * 32, float64(y) * 32
+}
+
+func Reset() {
+	for _, e := range ECS.Entities() {
+		ECS.RemoveEntity(e)
+	}
+	World.Player = 0
+
+	World.ObjectGroups = nil
+	World.HazardRects = nil
+	World.CreepRects = nil
+	World.CreepEntities = nil
+	World.TriggerEntities = nil
+	World.TriggerRects = nil
+	World.TriggerNames = nil
+
+	World.MessageVisible = false
 }
 
 func LoadMap(filePath string) {
@@ -228,15 +251,19 @@ func (w *GameWorld) SetGameOver(vx, vy float64) {
 	w.GameOver = true
 
 	if rand.Intn(100) == 7 {
+		asset.SoundBatHit4.Rewind()
 		asset.SoundBatHit4.Play()
 	} else {
 		deathSound := rand.Intn(3)
 		switch deathSound {
 		case 0:
+			asset.SoundBatHit1.Rewind()
 			asset.SoundBatHit1.Play()
 		case 1:
+			asset.SoundBatHit2.Rewind()
 			asset.SoundBatHit2.Play()
 		case 2:
+			asset.SoundBatHit3.Rewind()
 			asset.SoundBatHit3.Play()
 		}
 	}
@@ -275,12 +302,25 @@ func (w *GameWorld) SetGameOver(vx, vy float64) {
 		Image: asset.ImgBatBroken1,
 	}
 	ECS.AddComponent(w.BrokenPieceA, pieceASprite)
+	ECS.AddComponent(w.BrokenPieceA, &component.CreepBulletComponent{
+		Invulnerable: true,
+	})
 
 	w.BrokenPieceB = entity.NewCreepBullet(position.X, position.Y, xSpeedB, ySpeedB)
 	pieceBSprite := &component.SpriteComponent{
 		Image: asset.ImgBatBroken2,
 	}
 	ECS.AddComponent(w.BrokenPieceB, pieceBSprite)
+	ECS.AddComponent(w.BrokenPieceB, &component.CreepBulletComponent{
+		Invulnerable: true,
+	})
+
+	if !World.resetTipShown {
+		SetMessage("  GAME  OVER\n\nRESET: <ENTER>", math.MaxInt)
+		World.resetTipShown = true
+	} else {
+		SetMessage("GAME OVER", math.MaxInt)
+	}
 }
 
 // TODO move
@@ -321,4 +361,21 @@ func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
 	})
 
 	return creep
+}
+
+func StartGame() {
+	if World.GameStarted {
+		return
+	}
+	World.GameStarted = true
+
+	asset.SoundLevelMusic.Play()
+}
+
+func SetMessage(message string, duration int) {
+	World.MessageText = message
+	World.MessageVisible = true
+	World.MessageUpdated = true
+	World.MessageDuration = duration
+	World.MessageTicks = 0
 }

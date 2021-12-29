@@ -1,5 +1,5 @@
-code.rocketnine.space/tslocum/gohan v0.0.0-20211212050415-e08cfe7970d8 h1:tsIId//EUkKtk0v2wNEv6qUmS2yDnOTd7cmXhQemDyE=
-code.rocketnine.space/tslocum/gohan v0.0.0-20211212050415-e08cfe7970d8/go.mod h1:nOvFBFvFPl5sDtkMy2Fn/7QZcWq5RE98/mK+INLqIWg=
+code.rocketnine.space/tslocum/gohan v0.0.0-20211229205912-263cd48bca66 h1:H8rapZ2HCQZH+DpcXRZh52kUcXDzgHlJwsZgEGqezpo=
+code.rocketnine.space/tslocum/gohan v0.0.0-20211229205912-263cd48bca66/go.mod h1:nOvFBFvFPl5sDtkMy2Fn/7QZcWq5RE98/mK+INLqIWg=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -14,12 +14,14 @@ github.com/hajimehoshi/file2byteslice v0.0.0-20210813153925-5340248a8f41/go.mod 
 github.com/hajimehoshi/go-mp3 v0.3.2/go.mod h1:qMJj/CSDxx6CGHiZeCgbiq2DSUkbK0UbtXShQcnfyMM=
 github.com/hajimehoshi/oto v0.6.1/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
 github.com/hajimehoshi/oto/v2 v2.1.0-alpha.2/go.mod h1:rUKQmwMkqmRxe+IAof9+tuYA2ofm8cAWXFmSfzDN8vQ=
-github.com/hajimehoshi/oto/v2 v2.1.0-alpha.4 h1:6NIzk6tIJIOUB7mB00FtE5pz0Yt9LDBPcGirBIteJsI=
-github.com/hajimehoshi/oto/v2 v2.1.0-alpha.4/go.mod h1:rUKQmwMkqmRxe+IAof9+tuYA2ofm8cAWXFmSfzDN8vQ=
+github.com/hajimehoshi/oto/v2 v2.1.0-alpha.5 h1:AwLKf51fpOTVIBxgQUvNokmj/IaYMYsqJQBh6wif1c8=
+github.com/hajimehoshi/oto/v2 v2.1.0-alpha.5/go.mod h1:rUKQmwMkqmRxe+IAof9+tuYA2ofm8cAWXFmSfzDN8vQ=
 github.com/jakecoffman/cp v1.1.0/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
 github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 h1:dy+DS31tGEGCsZzB45HmJJNHjur8GDgtRNX9U7HnSX4=
 github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240/go.mod h1:3P4UH/k22rXyHIJD2w4h2XMqPX4Of/eySEZq9L6wqc4=
+github.com/jfreymuth/oggvorbis v1.0.3 h1:MLNGGyhOMiVcvea9Dp5+gbs2SAwqwQbtrWnonYa0M0Y=
 github.com/jfreymuth/oggvorbis v1.0.3/go.mod h1:1U4pqWmghcoVsCJJ4fRBKv9peUJMBHixthRlBeD6uII=
+github.com/jfreymuth/vorbis v1.0.2 h1:m1xH6+ZI4thH927pgKD8JOH4eaGRm18rEE9/0WKjvNE=
 github.com/jfreymuth/vorbis v1.0.2/go.mod h1:DoftRo4AznKnShRl1GxiTFCseHr4zR9BN3TWXyuzrqQ=
 github.com/lafriks/go-tiled v0.6.0 h1:kDJSvRPep6/5dtfdu0hqiAhXL40HmciMEXRb1TN/AU0=
 github.com/lafriks/go-tiled v0.6.0/go.mod h1:xy+4iO8AKWpFNBWeqBqnq+Cb3Oirm5oin/irP/jPx6A=
