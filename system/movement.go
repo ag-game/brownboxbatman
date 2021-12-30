@@ -98,6 +98,10 @@ func (s *MovementSystem) Update(ctx *gohan.Context) error {
 
 		world.World.PlayerX, world.World.PlayerY = position.X, position.Y
 
+		// Check player hazard collision.
+		if world.World.NoClip {
+			return nil
+		}
 		playerRect := image.Rect(int(position.X), int(position.Y), int(position.X+world.World.PlayerWidth), int(position.Y+world.World.PlayerHeight))
 		for _, r := range world.World.HazardRects {
 			if playerRect.Overlaps(r) {
@@ -157,7 +161,7 @@ func (s *MovementSystem) Update(ctx *gohan.Context) error {
 				creep := ECS.Component(world.World.CreepEntities[i], component.CreepComponentID).(*component.CreepComponent)
 				if creep.Active {
 					creep.Health--
-					creep.DamageTicks = 144 / 2
+					creep.DamageTicks = 6
 					ctx.RemoveEntity()
 					return nil
 				}

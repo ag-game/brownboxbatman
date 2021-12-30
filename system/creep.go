@@ -1,7 +1,9 @@
 package system
 
 import (
+	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
+	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
 	"code.rocketnine.space/tslocum/brownboxbatman/entity"
 	"code.rocketnine.space/tslocum/brownboxbatman/world"
 	"code.rocketnine.space/tslocum/gohan"
@@ -41,6 +43,9 @@ func (s *CreepSystem) Update(ctx *gohan.Context) error {
 	if creep.Health <= 0 {
 		for i, e := range world.World.CreepEntities {
 			if e == ctx.Entity {
+				asset.SoundCreepDie.Rewind()
+				asset.SoundCreepDie.Play()
+
 				world.World.CreepRects = append(world.World.CreepRects[:i], world.World.CreepRects[i+1:]...)
 				world.World.CreepEntities = append(world.World.CreepEntities[:i], world.World.CreepEntities[i+1:]...)
 				ctx.RemoveEntity()
@@ -82,7 +87,7 @@ func (s *CreepSystem) Update(ctx *gohan.Context) error {
 	}
 
 	if creep.FireTicks == 0 {
-		for i := 0; i < 8; i++ {
+		for i := 0; i < creep.FireAmount; i++ {
 			vx, vy := randVelocity()
 
 			if creep.Rand.Intn(2) == 0 {
@@ -95,10 +100,27 @@ func (s *CreepSystem) Update(ctx *gohan.Context) error {
 		}
 		creep.FireTicks = creep.FireRate
 	}
-
-	// TODO update colorM based on damageticks
-
 	creep.FireTicks--
+
+	if creep.DamageTicks > 0 {
+		creep.DamageTicks--
+
+		sprite := ECS.Component(ctx.Entity, component.SpriteComponentID)
+		if sprite != nil {
+			sp := sprite.(*component.SpriteComponent)
+			if creep.DamageTicks > 0 {
+				if creep.DamageTicks%2 == 0 {
+					sp.ColorScale = 100
+				} else {
+					sp.ColorScale = .01
+				}
+				sp.OverrideColorScale = true
+			} else {
+				sp.OverrideColorScale = false
+			}
+		}
+	}
+
 	return nil
 }
 

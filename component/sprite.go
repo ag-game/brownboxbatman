@@ -26,6 +26,8 @@ type SpriteComponent struct {
 	LastFrame time.Time
 	NumFrames int
 
+	DamageTicks int
+
 	OverrideColorScale bool
 	ColorScale         float64
 }

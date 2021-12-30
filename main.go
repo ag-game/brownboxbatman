@@ -43,25 +43,6 @@ func main() {
 		g.Exit()
 	}()
 
-	/*go func() {
-		s := bufio.NewScanner(os.Stdin)
-		for s.Scan() {
-			input := s.Text()
-			if strings.HasPrefix(input, "warp ") {
-				pos := strings.Split(input[5:], ",")
-				if len(pos) == 2 {
-					posX, err := strconv.Atoi(pos[0])
-					if err == nil {
-						posY, err := strconv.Atoi(pos[1])
-						if err == nil {
-							g.WarpTo(float64(posX), float64(posY))
-						}
-					}
-				}
-			}
-		}
-	}()*/
-
 	err = ebiten.RunGame(g)
 	if err != nil {
 		log.Fatal(err)

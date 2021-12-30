@@ -6,7 +6,6 @@ require (
 	code.rocketnine.space/tslocum/gohan v0.0.0-20211229205912-263cd48bca66
 	github.com/hajimehoshi/ebiten/v2 v2.2.3
 	github.com/lafriks/go-tiled v0.6.0
-	golang.org/x/text v0.3.7
 )
 
 require (

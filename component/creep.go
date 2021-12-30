@@ -8,6 +8,7 @@ import (
 )
 
 type CreepComponent struct {
+	Type   int
 	Active bool
 
 	Health     int
@@ -26,7 +27,9 @@ type CreepComponent struct {
 
 const (
 	CreepSnowblower = iota + 1
-	CreepSnowmanHead
+	CreepSmallRock
+	CreepMediumRock
+	CreepLargeRock
 )
 
 var CreepComponentID = ECS.NewComponentID()

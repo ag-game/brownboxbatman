@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	_ "image/png"
+	"io"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
@@ -39,6 +40,8 @@ var (
 	SoundBatHit3 *audio.Player
 	SoundBatHit4 *audio.Player
 
+	SoundCreepDie *audio.Player
+
 	SoundTitleMusic *audio.Player
 	SoundLevelMusic *audio.Player
 )
@@ -54,10 +57,12 @@ func LoadSounds(ctx *audio.Context) {
 	SoundBatHit3 = LoadWAV(ctx, "sound/bat_hit/hit3.wav")
 	SoundBatHit4 = LoadWAV(ctx, "sound/bonk.wav")
 
-	SoundTitleMusic = LoadOGG(ctx, "sound/title_music.ogg")
+	SoundCreepDie = LoadOGG(ctx, "sound/creep_die/creep_die.ogg", false)
+
+	SoundTitleMusic = LoadOGG(ctx, "sound/title_music.ogg", true)
 	SoundTitleMusic.SetVolume(0.5)
 
-	SoundLevelMusic = LoadOGG(ctx, "sound/level_music.ogg")
+	SoundLevelMusic = LoadOGG(ctx, "sound/level_music.ogg", true)
 	SoundLevelMusic.SetVolume(0.4)
 }
 
@@ -111,7 +116,7 @@ func LoadWAV(context *audio.Context, p string) *audio.Player {
 	return player
 }
 
-func LoadOGG(context *audio.Context, p string) *audio.Player {
+func LoadOGG(context *audio.Context, p string, loop bool) *audio.Player {
 	b := LoadBytes(p)
 
 	stream, err := vorbis.DecodeWithSampleRate(sampleRate, bytes.NewReader(b))
@@ -119,7 +124,14 @@ func LoadOGG(context *audio.Context, p string) *audio.Player {
 		panic(err)
 	}
 
-	player, err := context.NewPlayer(audio.NewInfiniteLoop(stream, stream.Length()))
+	var s io.Reader
+	if loop {
+		s = audio.NewInfiniteLoop(stream, stream.Length())
+	} else {
+		s = stream
+	}
+
+	player, err := context.NewPlayer(s)
 	if err != nil {
 		panic(err)
 	}

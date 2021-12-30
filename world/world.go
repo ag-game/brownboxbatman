@@ -16,17 +16,6 @@ import (
 	"github.com/lafriks/go-tiled"
 )
 
-const (
-	SoundGunshot = iota
-	SoundVampireDie1
-	SoundVampireDie2
-	SoundBat
-	SoundPlayerHurt
-	SoundPlayerDie
-	SoundPickup
-	SoundMunch
-)
-
 var World = &GameWorld{
 	CamScale:     1,
 	CamMoving:    true,
@@ -222,12 +211,25 @@ func LoadMap(filePath string) {
 			}
 		} else if grp.Name == "HAZARDS" {
 			for _, obj := range grp.Objects {
-				World.HazardRects = append(World.HazardRects, ObjectToRect(obj))
+				r := ObjectToRect(obj)
+				r.Min.Y += 32
+				r.Max.Y += 32
+				World.HazardRects = append(World.HazardRects, r)
 			}
 		} else if grp.Name == "CREEPS" {
 			for _, obj := range grp.Objects {
-				c := NewCreep(component.CreepSnowblower, int64(obj.ID), float64(obj.X), float64(obj.Y))
-				World.CreepRects = append(World.CreepRects, ObjectToRect(obj))
+				creepType := component.CreepSnowblower
+				switch obj.GID {
+				case 9:
+					creepType = component.CreepSmallRock
+				case 18:
+					creepType = component.CreepMediumRock
+				case 23:
+					creepType = component.CreepLargeRock
+				}
+				r := ObjectToRect(obj)
+				c := NewCreep(creepType, int64(obj.ID), float64(r.Min.X), float64(r.Min.Y))
+				World.CreepRects = append(World.CreepRects, r)
 				World.CreepEntities = append(World.CreepEntities, c)
 			}
 		}
@@ -236,6 +238,7 @@ func LoadMap(filePath string) {
 
 func ObjectToRect(o *tiled.Object) image.Rectangle {
 	x, y, w, h := int(o.X), int(o.Y), int(o.Width), int(o.Height)
+	y -= 32
 	return image.Rect(x, y, x+w, y+h)
 }
 
@@ -332,17 +335,39 @@ func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
 		Y: y,
 	})
 
-	if creepType == component.CreepSnowmanHead {
+	if creepType == component.CreepSmallRock {
 		ECS.AddComponent(creep, &component.VelocityComponent{})
 
 		ECS.AddComponent(creep, &component.CreepComponent{
-			Health:     128,
-			FireAmount: 1,
-			FireRate:   144 * 1.5,
+			Type:       creepType,
+			Health:     32,
+			FireAmount: 2,
+			FireRate:   144 * 1,
 			Rand:       rand.New(rand.NewSource(creepID)),
 		})
-	} else {
+	} else if creepType == component.CreepMediumRock {
+		ECS.AddComponent(creep, &component.VelocityComponent{})
+
 		ECS.AddComponent(creep, &component.CreepComponent{
+			Type:       creepType,
+			Health:     64,
+			FireAmount: 4,
+			FireRate:   144 * 1,
+			Rand:       rand.New(rand.NewSource(creepID)),
+		})
+	} else if creepType == component.CreepLargeRock {
+		ECS.AddComponent(creep, &component.VelocityComponent{})
+
+		ECS.AddComponent(creep, &component.CreepComponent{
+			Type:       creepType,
+			Health:     96,
+			FireAmount: 8,
+			FireRate:   144,
+			Rand:       rand.New(rand.NewSource(creepID)),
+		})
+	} else { // CreepSnowblower
+		ECS.AddComponent(creep, &component.CreepComponent{
+			Type:       creepType,
 			Health:     64,
 			FireAmount: 8,
 			FireRate:   144 / 4,
@@ -350,10 +375,15 @@ func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
 		})
 	}
 
-	img := asset.ImgBat
-	if creepType == component.CreepSnowmanHead {
-		img = World.TileImages[8]
-	} else if creepType == component.CreepSnowblower {
+	// TODO handle flipped creep
+	var img *ebiten.Image
+	if creepType == component.CreepSmallRock {
+		img = World.TileImages[9]
+	} else if creepType == component.CreepMediumRock {
+		img = World.TileImages[18]
+	} else if creepType == component.CreepLargeRock {
+		img = World.TileImages[23]
+	} else { // CreepSnowblower
 		img = World.TileImages[50]
 	}
 	ECS.AddComponent(creep, &component.SpriteComponent{

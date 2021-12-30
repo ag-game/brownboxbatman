@@ -1,6 +1,8 @@
 package system
 
 import (
+	"math"
+
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
 	"code.rocketnine.space/tslocum/brownboxbatman/world"
 	"code.rocketnine.space/tslocum/gohan"
@@ -36,6 +38,9 @@ func (s *CameraSystem) Update(ctx *gohan.Context) error {
 	world.World.CamMoving = world.World.CamY > 0
 	if world.World.CamMoving {
 		world.World.CamY -= CameraMoveSpeed
+	} else {
+		world.SetMessage("GAME OVER\n\nYOU  WIN!", math.MaxInt)
+		world.World.GameOver = true
 	}
 	return nil
 }
