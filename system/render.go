@@ -129,7 +129,8 @@ func (s *RenderSystem) Draw(ctx *gohan.Context, screen *ebiten.Image) error {
 		if ctx.Entity == world.World.Player {
 			world.World.GameStartedTicks++
 
-			pct := float64(world.World.GameStartedTicks) / (144 * 1)
+			timeA := 144.0 * 2
+			pct := float64(world.World.GameStartedTicks) / timeA
 			if pct > 1 {
 				pct = 1
 			}
@@ -139,8 +140,9 @@ func (s *RenderSystem) Draw(ctx *gohan.Context, screen *ebiten.Image) error {
 			screen.DrawImage(asset.ImgTitle1, s.op)
 			s.op.ColorM.Reset()
 
-			if world.World.GameStartedTicks > 144*2 {
-				pct = float64(world.World.GameStartedTicks-(144*2)) / (144 * 1.5)
+			timeB := 144.0 * 2.75
+			if world.World.GameStartedTicks > int(timeB) {
+				pct = float64(world.World.GameStartedTicks-int(timeB)) / (144 * 0.5)
 				if pct > 1 {
 					pct = 1
 				}
@@ -149,8 +151,9 @@ func (s *RenderSystem) Draw(ctx *gohan.Context, screen *ebiten.Image) error {
 				screen.DrawImage(asset.ImgTitle2, s.op)
 			}
 
-			if world.World.GameStartedTicks > 144*4 {
-				pct = float64(world.World.GameStartedTicks-(144*4)) / (144 * 0.5)
+			timeC := 144.0 * 4.35
+			if world.World.GameStartedTicks > int(timeC) {
+				pct = float64(world.World.GameStartedTicks-int(timeC)) / (144 * 0.5)
 				if pct > 1 {
 					pct = 1
 				}

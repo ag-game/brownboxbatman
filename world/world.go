@@ -369,6 +369,8 @@ func StartGame() {
 	}
 	World.GameStarted = true
 
+	asset.SoundTitleMusic.Pause()
+
 	asset.SoundLevelMusic.Play()
 }
 

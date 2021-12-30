@@ -39,6 +39,7 @@ var (
 	SoundBatHit3 *audio.Player
 	SoundBatHit4 *audio.Player
 
+	SoundTitleMusic *audio.Player
 	SoundLevelMusic *audio.Player
 )
 
@@ -53,9 +54,11 @@ func LoadSounds(ctx *audio.Context) {
 	SoundBatHit3 = LoadWAV(ctx, "sound/bat_hit/hit3.wav")
 	SoundBatHit4 = LoadWAV(ctx, "sound/bonk.wav")
 
-	SoundLevelMusic = LoadOGG(ctx, "sound/level_music.ogg")
+	SoundTitleMusic = LoadOGG(ctx, "sound/title_music.ogg")
+	SoundTitleMusic.SetVolume(0.5)
 
-	SoundLevelMusic.SetVolume(0.5)
+	SoundLevelMusic = LoadOGG(ctx, "sound/level_music.ogg")
+	SoundLevelMusic.SetVolume(0.4)
 }
 
 func LoadImage(p string) *ebiten.Image {

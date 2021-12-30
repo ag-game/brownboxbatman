@@ -73,6 +73,11 @@ func NewGame() (*game, error) {
 		op:           &ebiten.DrawImageOptions{},
 	}
 
+	err := g.loadAssets()
+	if err != nil {
+		panic(err)
+	}
+
 	const numEntities = 30000
 	ECS.Preallocate(numEntities)
 
@@ -131,14 +136,9 @@ func (g *game) Update() error {
 		if !g.addedSystems {
 			g.addSystems()
 
-			err := g.loadAssets()
-			if err != nil {
-				return err
+			if world.World.Debug == 0 {
+				asset.SoundTitleMusic.Play()
 			}
-
-			asset.ImgWhiteSquare.Fill(color.White)
-
-			asset.LoadSounds(g.audioContext)
 
 			g.addedSystems = true // TODO
 		}
@@ -201,6 +201,8 @@ func (g *game) addSystems() {
 }
 
 func (g *game) loadAssets() error {
+	asset.ImgWhiteSquare.Fill(color.White)
+	asset.LoadSounds(g.audioContext)
 	return nil
 }
 
