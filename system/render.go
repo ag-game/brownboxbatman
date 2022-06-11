@@ -9,7 +9,6 @@ import (
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
-	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
 	"code.rocketnine.space/tslocum/brownboxbatman/world"
 	"code.rocketnine.space/tslocum/gohan"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -27,20 +26,23 @@ const (
 )
 
 type RenderSystem struct {
-	ScreenW int
-	ScreenH int
+	Position *component.Position
+	Sprite   *component.Sprite
 
-	img *ebiten.Image
-	op  *ebiten.DrawImageOptions
+	ScreenW int `gohan:"-"`
+	ScreenH int `gohan:"-"`
 
-	camScale float64
+	img *ebiten.Image            `gohan:"-"`
+	op  *ebiten.DrawImageOptions `gohan:"-"`
 
-	renderer gohan.Entity
+	camScale float64 `gohan:"-"`
+
+	renderer gohan.Entity `gohan:"-"`
 }
 
 func NewRenderSystem() *RenderSystem {
 	s := &RenderSystem{
-		renderer: ECS.NewEntity(),
+		renderer: gohan.NewEntity(),
 		img:      ebiten.NewImage(320, 100),
 		op:       &ebiten.DrawImageOptions{},
 		camScale: 1,
@@ -51,25 +53,14 @@ func NewRenderSystem() *RenderSystem {
 	return s
 }
 
-func (s *RenderSystem) Needs() []gohan.ComponentID {
-	return []gohan.ComponentID{
-		component.PositionComponentID,
-		component.SpriteComponentID,
-	}
-}
-
-func (s *RenderSystem) Uses() []gohan.ComponentID {
-	return nil
-}
-
-func (s *RenderSystem) Update(_ *gohan.Context) error {
-	return gohan.ErrSystemWithoutUpdate
+func (s *RenderSystem) Update(_ gohan.Entity) error {
+	return gohan.ErrUnregister
 }
 
 func (s *RenderSystem) levelCoordinatesToScreen(x, y float64) (float64, float64) {
 	px, py := world.World.CamX, world.World.CamY
 	py *= -1
-	return ((x - px) * s.camScale), ((y + py) * s.camScale)
+	return (x - px) * s.camScale, (y + py) * s.camScale
 }
 
 // renderSprite renders a sprite on the screen.
@@ -124,9 +115,9 @@ func (s *RenderSystem) renderSprite(x float64, y float64, offsetx float64, offse
 	return 1
 }
 
-func (s *RenderSystem) Draw(ctx *gohan.Context, screen *ebiten.Image) error {
+func (s *RenderSystem) Draw(e gohan.Entity, screen *ebiten.Image) error {
 	if !world.World.GameStarted {
-		if ctx.Entity == world.World.Player {
+		if e == world.World.Player {
 			world.World.GameStartedTicks++
 
 			timeA := 144.0 * 2
@@ -175,8 +166,8 @@ func (s *RenderSystem) Draw(ctx *gohan.Context, screen *ebiten.Image) error {
 		return nil
 	}
 
-	position := component.Position(ctx)
-	sprite := component.Sprite(ctx)
+	position := s.Position
+	sprite := s.Sprite
 
 	if sprite.NumFrames > 0 && time.Since(sprite.LastFrame) > sprite.FrameTime {
 		sprite.Frame++

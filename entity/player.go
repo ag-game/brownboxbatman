@@ -3,29 +3,28 @@ package entity
 import (
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
-	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
 	"code.rocketnine.space/tslocum/gohan"
 )
 
 func NewPlayer() gohan.Entity {
-	player := ECS.NewEntity()
+	player := gohan.NewEntity()
 
-	ECS.AddComponent(player, &component.PositionComponent{})
+	player.AddComponent(&component.Position{})
 
-	ECS.AddComponent(player, &component.VelocityComponent{})
+	player.AddComponent(&component.Velocity{})
 
-	weapon := &component.WeaponComponent{
+	weapon := &component.Weapon{
 		Damage:      1,
 		FireRate:    144 / 16,
 		BulletSpeed: 8,
 	}
-	ECS.AddComponent(player, weapon)
+	player.AddComponent(weapon)
 
-	ECS.AddComponent(player, &component.SpriteComponent{
+	player.AddComponent(&component.Sprite{
 		Image: asset.ImgBat,
 	})
 
-	ECS.AddComponent(player, &component.RailComponent{})
+	player.AddComponent(&component.Rail{})
 
 	return player
 }

@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
-
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
 	"code.rocketnine.space/tslocum/brownboxbatman/world"
 	"code.rocketnine.space/tslocum/gohan"
@@ -17,6 +16,11 @@ const (
 )
 
 type playerMoveSystem struct {
+	Position *component.Position
+	Velocity *component.Velocity
+	Weapon   *component.Weapon
+	Sprite   *component.Sprite
+
 	player       gohan.Entity
 	movement     *MovementSystem
 	lastWalkDirL bool
@@ -32,22 +36,7 @@ func NewPlayerMoveSystem(player gohan.Entity, m *MovementSystem) *playerMoveSyst
 	}
 }
 
-func (_ *playerMoveSystem) Needs() []gohan.ComponentID {
-	return []gohan.ComponentID{
-		component.PositionComponentID,
-		component.VelocityComponentID,
-		component.WeaponComponentID,
-		component.SpriteComponentID,
-	}
-}
-
-func (_ *playerMoveSystem) Uses() []gohan.ComponentID {
-	return nil
-}
-
-func (s *playerMoveSystem) Update(ctx *gohan.Context) error {
-	velocity := component.Velocity(ctx)
-
+func (s *playerMoveSystem) Update(e gohan.Entity) error {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) && !world.World.DisableEsc {
 		os.Exit(0)
 		return nil
@@ -92,37 +81,37 @@ func (s *playerMoveSystem) Update(ctx *gohan.Context) error {
 		return nil
 	}
 
-	pressLeft := ebiten.IsKeyPressed(ebiten.KeyLeft)
-	pressRight := ebiten.IsKeyPressed(ebiten.KeyRight)
-	pressUp := ebiten.IsKeyPressed(ebiten.KeyUp)
-	pressDown := ebiten.IsKeyPressed(ebiten.KeyDown)
+	pressLeft := ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyA)
+	pressRight := ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyD)
+	pressUp := ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW)
+	pressDown := ebiten.IsKeyPressed(ebiten.KeyDown) || ebiten.IsKeyPressed(ebiten.KeyS)
 
 	if (pressLeft && !pressRight) ||
 		(pressRight && !pressLeft) {
 		if pressLeft {
-			velocity.X = -moveSpeed
+			s.Velocity.X = -moveSpeed
 		} else {
-			velocity.X = moveSpeed
+			s.Velocity.X = moveSpeed
 		}
 	} else {
-		velocity.X = 0
+		s.Velocity.X = 0
 	}
 
 	if (pressUp && !pressDown) ||
 		(pressDown && !pressUp) {
 		if pressUp {
-			velocity.Y = -moveSpeed
+			s.Velocity.Y = -moveSpeed
 		} else {
-			velocity.Y = moveSpeed
+			s.Velocity.Y = moveSpeed
 		}
 	} else {
-		velocity.Y = 0
+		s.Velocity.Y = 0
 	}
 	return nil
 }
 
-func (s *playerMoveSystem) Draw(_ *gohan.Context, _ *ebiten.Image) error {
-	return gohan.ErrSystemWithoutDraw
+func (s *playerMoveSystem) Draw(_ gohan.Entity, _ *ebiten.Image) error {
+	return gohan.ErrUnregister
 }
 
 func deltaXY(x1, y1, x2, y2 float64) (dx float64, dy float64) {

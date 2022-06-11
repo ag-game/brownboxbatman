@@ -6,6 +6,7 @@ builds:
 #    ldflags:
 #      - -s -w -X code.rocketnine.space/tslocum/brownboxbatman/main.Version={{.Version}}
     goos:
+      - darwin
       - js
       - linux
       - windows

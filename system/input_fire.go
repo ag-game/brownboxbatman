@@ -13,32 +13,24 @@ const (
 )
 
 type playerFireSystem struct {
+	Position *component.Position
+	Velocity *component.Velocity
+	Weapon   *component.Weapon
+	Sprite   *component.Sprite
 }
 
 func NewplayerFireSystem() *playerFireSystem {
 	return &playerFireSystem{}
 }
 
-func (_ *playerFireSystem) Needs() []gohan.ComponentID {
-	return []gohan.ComponentID{
-		component.PositionComponentID,
-		component.VelocityComponentID,
-		component.WeaponComponentID,
-		component.SpriteComponentID,
-	}
-}
-
-func (_ *playerFireSystem) Uses() []gohan.ComponentID {
-	return nil
-}
-
-func (s *playerFireSystem) Update(ctx *gohan.Context) error {
+func (s *playerFireSystem) Update(e gohan.Entity) error {
 	if !world.World.GameStarted || world.World.GameOver {
 		return nil
 	}
 
-	position := component.Position(ctx)
-	weapon := component.Weapon(ctx)
+	position := s.Position
+	weapon := s.Weapon
+
 	if ebiten.IsKeyPressed(ebiten.KeyZ) || ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if weapon.NextFire == 0 {
 			entity.NewPlayerBullet(position.X-8, position.Y-8, 0, -weapon.BulletSpeed)
@@ -52,6 +44,6 @@ func (s *playerFireSystem) Update(ctx *gohan.Context) error {
 	return nil
 }
 
-func (s *playerFireSystem) Draw(_ *gohan.Context, _ *ebiten.Image) error {
-	return gohan.ErrSystemWithoutDraw
+func (s *playerFireSystem) Draw(_ gohan.Entity, _ *ebiten.Image) error {
+	return gohan.ErrUnregister
 }

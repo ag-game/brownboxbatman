@@ -12,6 +12,10 @@ import (
 )
 
 type RenderMessageSystem struct {
+	Position *component.Position
+	Velocity *component.Velocity
+	Weapon   *component.Weapon
+
 	op      *ebiten.DrawImageOptions
 	logoImg *ebiten.Image
 	msgImg  *ebiten.Image
@@ -29,19 +33,7 @@ func NewRenderMessageSystem() *RenderMessageSystem {
 	return s
 }
 
-func (s *RenderMessageSystem) Needs() []gohan.ComponentID {
-	return []gohan.ComponentID{
-		component.PositionComponentID,
-		component.VelocityComponentID,
-		component.WeaponComponentID,
-	}
-}
-
-func (s *RenderMessageSystem) Uses() []gohan.ComponentID {
-	return nil
-}
-
-func (s *RenderMessageSystem) Update(_ *gohan.Context) error {
+func (s *RenderMessageSystem) Update(_ gohan.Entity) error {
 	if !world.World.GameStarted || world.World.GameOver || !world.World.MessageVisible {
 		return nil
 	}
@@ -54,7 +46,7 @@ func (s *RenderMessageSystem) Update(_ *gohan.Context) error {
 	return nil
 }
 
-func (s *RenderMessageSystem) Draw(_ *gohan.Context, screen *ebiten.Image) error {
+func (s *RenderMessageSystem) Draw(_ gohan.Entity, screen *ebiten.Image) error {
 	if !world.World.GameStarted || !world.World.MessageVisible {
 		return nil
 	}

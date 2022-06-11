@@ -8,6 +8,8 @@ import (
 )
 
 type RailSystem struct {
+	Rail     *component.Rail
+	Position *component.Position
 }
 
 func NewRailSystem() *RailSystem {
@@ -15,27 +17,16 @@ func NewRailSystem() *RailSystem {
 
 	return s
 }
-func (_ *RailSystem) Needs() []gohan.ComponentID {
-	return []gohan.ComponentID{
-		component.RailComponentID,
-		component.PositionComponentID,
-	}
-}
 
-func (_ *RailSystem) Uses() []gohan.ComponentID {
-	return nil
-}
-
-func (s *RailSystem) Update(ctx *gohan.Context) error {
+func (s *RailSystem) Update(e gohan.Entity) error {
 	if !world.World.GameStarted || world.World.GameOver || !world.World.CamMoving {
 		return nil
 	}
 
-	position := component.Position(ctx)
-	position.Y -= CameraMoveSpeed
+	s.Position.Y -= CameraMoveSpeed
 	return nil
 }
 
-func (_ *RailSystem) Draw(_ *gohan.Context, screen *ebiten.Image) error {
-	return gohan.ErrSystemWithoutDraw
+func (_ *RailSystem) Draw(_ gohan.Entity, _ *ebiten.Image) error {
+	return gohan.ErrUnregister
 }

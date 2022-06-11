@@ -9,7 +9,6 @@ import (
 
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
-	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
 	"code.rocketnine.space/tslocum/brownboxbatman/entity"
 	"code.rocketnine.space/tslocum/gohan"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -26,8 +25,6 @@ var World = &GameWorld{
 }
 
 type GameWorld struct {
-	*gohan.World
-
 	Player gohan.Entity
 
 	ScreenW, ScreenH int
@@ -82,8 +79,8 @@ func TileToGameCoords(x, y int) (float64, float64) {
 }
 
 func Reset() {
-	for _, e := range ECS.Entities() {
-		ECS.RemoveEntity(e)
+	for _, e := range gohan.AllEntities() {
+		e.Remove()
 	}
 	World.Player = 0
 
@@ -99,12 +96,8 @@ func Reset() {
 }
 
 func LoadMap(filePath string) {
-	loader := tiled.Loader{
-		FileSystem: asset.FS,
-	}
-
 	// Parse .tmx file.
-	m, err := loader.LoadFromFile(filepath.FromSlash(filePath))
+	m, err := tiled.LoadFile(filePath, tiled.WithFileSystem(asset.FS))
 	if err != nil {
 		log.Fatalf("error parsing world: %+v", err)
 	}
@@ -136,19 +129,19 @@ func LoadMap(filePath string) {
 	createTileEntity := func(t *tiled.LayerTile, x int, y int) gohan.Entity {
 		tileX, tileY := TileToGameCoords(x, y)
 
-		mapTile := ECS.NewEntity()
-		ECS.AddComponent(mapTile, &component.PositionComponent{
+		mapTile := gohan.NewEntity()
+		mapTile.AddComponent(&component.Position{
 			X: tileX,
 			Y: tileY,
 		})
 
-		sprite := &component.SpriteComponent{
+		sprite := &component.Sprite{
 			Image:          World.TileImages[t.Tileset.FirstGID+t.ID],
 			HorizontalFlip: t.HorizontalFlip,
 			VerticalFlip:   t.VerticalFlip,
 			DiagonalFlip:   t.DiagonalFlip,
 		}
-		ECS.AddComponent(mapTile, sprite)
+		mapTile.AddComponent(sprite)
 
 		return mapTile
 	}
@@ -196,12 +189,12 @@ func LoadMap(filePath string) {
 	for _, grp := range World.ObjectGroups {
 		if grp.Name == "TRIGGERS" {
 			for _, obj := range grp.Objects {
-				mapTile := ECS.NewEntity()
-				ECS.AddComponent(mapTile, &component.PositionComponent{
+				mapTile := gohan.NewEntity()
+				mapTile.AddComponent(&component.Position{
 					X: obj.X,
 					Y: obj.Y - 32,
 				})
-				ECS.AddComponent(mapTile, &component.SpriteComponent{
+				mapTile.AddComponent(&component.Sprite{
 					Image: World.TileImages[obj.GID],
 				})
 
@@ -271,51 +264,49 @@ func (w *GameWorld) SetGameOver(vx, vy float64) {
 		}
 	}
 
-	sprite := ECS.Component(w.Player, component.SpriteComponentID).(*component.SpriteComponent)
-	sprite.Image = ebiten.NewImage(1, 1)
+	w.Player.With(func(position *component.Position, velocity *component.Velocity, sprite *component.Sprite) {
+		sprite.Image = ebiten.NewImage(1, 1)
 
-	position := ECS.Component(w.Player, component.PositionComponentID).(*component.PositionComponent)
+		if vx == 0 && vy == 0 {
+			vx, vy = velocity.X, velocity.Y
+		}
 
-	if vx == 0 && vy == 0 {
-		velocity := ECS.Component(w.Player, component.VelocityComponentID).(*component.VelocityComponent)
-		vx, vy = velocity.X, velocity.Y
-	}
+		xSpeedA := 1.5
+		xSpeedB := -1.5
+		ySpeedA := -1.5
+		ySpeedB := -1.5
+		if vy > 0 {
+			ySpeedA = 1.5
+			ySpeedB = 1.5
+		} else if vx < 0 {
+			xSpeedA = -1.5
+			xSpeedB = -1.5
+			ySpeedA = -1.5
+			ySpeedB = 1.5
+		} else if vx > 0 {
+			xSpeedA = 1.5
+			xSpeedB = 1.5
+			ySpeedA = -1.5
+			ySpeedB = 1.5
+		}
 
-	xSpeedA := 1.5
-	xSpeedB := -1.5
-	ySpeedA := -1.5
-	ySpeedB := -1.5
-	if vy > 0 {
-		ySpeedA = 1.5
-		ySpeedB = 1.5
-	} else if vx < 0 {
-		xSpeedA = -1.5
-		xSpeedB = -1.5
-		ySpeedA = -1.5
-		ySpeedB = 1.5
-	} else if vx > 0 {
-		xSpeedA = 1.5
-		xSpeedB = 1.5
-		ySpeedA = -1.5
-		ySpeedB = 1.5
-	}
+		w.BrokenPieceA = entity.NewCreepBullet(position.X, position.Y, xSpeedA, ySpeedA)
+		pieceASprite := &component.Sprite{
+			Image: asset.ImgBatBroken1,
+		}
+		w.BrokenPieceA.AddComponent(pieceASprite)
+		w.BrokenPieceA.AddComponent(&component.CreepBullet{
+			Invulnerable: true,
+		})
 
-	w.BrokenPieceA = entity.NewCreepBullet(position.X, position.Y, xSpeedA, ySpeedA)
-	pieceASprite := &component.SpriteComponent{
-		Image: asset.ImgBatBroken1,
-	}
-	ECS.AddComponent(w.BrokenPieceA, pieceASprite)
-	ECS.AddComponent(w.BrokenPieceA, &component.CreepBulletComponent{
-		Invulnerable: true,
-	})
-
-	w.BrokenPieceB = entity.NewCreepBullet(position.X, position.Y, xSpeedB, ySpeedB)
-	pieceBSprite := &component.SpriteComponent{
-		Image: asset.ImgBatBroken2,
-	}
-	ECS.AddComponent(w.BrokenPieceB, pieceBSprite)
-	ECS.AddComponent(w.BrokenPieceB, &component.CreepBulletComponent{
-		Invulnerable: true,
+		w.BrokenPieceB = entity.NewCreepBullet(position.X, position.Y, xSpeedB, ySpeedB)
+		pieceBSprite := &component.Sprite{
+			Image: asset.ImgBatBroken2,
+		}
+		w.BrokenPieceB.AddComponent(pieceBSprite)
+		w.BrokenPieceB.AddComponent(&component.CreepBullet{
+			Invulnerable: true,
+		})
 	})
 
 	if !World.resetTipShown {
@@ -328,17 +319,17 @@ func (w *GameWorld) SetGameOver(vx, vy float64) {
 
 // TODO move
 func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
-	creep := ECS.NewEntity()
+	creep := gohan.NewEntity()
 
-	ECS.AddComponent(creep, &component.PositionComponent{
+	creep.AddComponent(&component.Position{
 		X: x,
 		Y: y,
 	})
 
 	if creepType == component.CreepSmallRock {
-		ECS.AddComponent(creep, &component.VelocityComponent{})
+		creep.AddComponent(&component.Velocity{})
 
-		ECS.AddComponent(creep, &component.CreepComponent{
+		creep.AddComponent(&component.Creep{
 			Type:       creepType,
 			Health:     32,
 			FireAmount: 2,
@@ -346,9 +337,9 @@ func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
 			Rand:       rand.New(rand.NewSource(creepID)),
 		})
 	} else if creepType == component.CreepMediumRock {
-		ECS.AddComponent(creep, &component.VelocityComponent{})
+		creep.AddComponent(&component.Velocity{})
 
-		ECS.AddComponent(creep, &component.CreepComponent{
+		creep.AddComponent(&component.Creep{
 			Type:       creepType,
 			Health:     64,
 			FireAmount: 4,
@@ -356,9 +347,9 @@ func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
 			Rand:       rand.New(rand.NewSource(creepID)),
 		})
 	} else if creepType == component.CreepLargeRock {
-		ECS.AddComponent(creep, &component.VelocityComponent{})
+		creep.AddComponent(&component.Velocity{})
 
-		ECS.AddComponent(creep, &component.CreepComponent{
+		creep.AddComponent(&component.Creep{
 			Type:       creepType,
 			Health:     96,
 			FireAmount: 8,
@@ -366,7 +357,7 @@ func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
 			Rand:       rand.New(rand.NewSource(creepID)),
 		})
 	} else { // CreepSnowblower
-		ECS.AddComponent(creep, &component.CreepComponent{
+		creep.AddComponent(&component.Creep{
 			Type:       creepType,
 			Health:     64,
 			FireAmount: 8,
@@ -386,7 +377,7 @@ func NewCreep(creepType int, creepID int64, x float64, y float64) gohan.Entity {
 	} else { // CreepSnowblower
 		img = World.TileImages[50]
 	}
-	ECS.AddComponent(creep, &component.SpriteComponent{
+	creep.AddComponent(&component.Sprite{
 		Image: img,
 	})
 

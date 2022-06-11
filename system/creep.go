@@ -3,7 +3,6 @@ package system
 import (
 	"code.rocketnine.space/tslocum/brownboxbatman/asset"
 	"code.rocketnine.space/tslocum/brownboxbatman/component"
-	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
 	"code.rocketnine.space/tslocum/brownboxbatman/entity"
 	"code.rocketnine.space/tslocum/brownboxbatman/world"
 	"code.rocketnine.space/tslocum/gohan"
@@ -12,6 +11,11 @@ import (
 
 // pause time, screen X, screen Y
 type CreepSystem struct {
+	Creep    *component.Creep
+	Position *component.Position
+
+	Sprite *component.Sprite `gohan:"?"`
+	Weapon *component.Weapon `gohan:"?"`
 }
 
 func NewCreepSystem() *CreepSystem {
@@ -19,36 +23,24 @@ func NewCreepSystem() *CreepSystem {
 
 	return s
 }
-func (_ *CreepSystem) Needs() []gohan.ComponentID {
-	return []gohan.ComponentID{
-		component.CreepComponentID,
-		component.PositionComponentID,
-	}
-}
 
-func (_ *CreepSystem) Uses() []gohan.ComponentID {
-	return []gohan.ComponentID{
-		component.WeaponComponentID,
-	}
-}
-
-func (s *CreepSystem) Update(ctx *gohan.Context) error {
+func (s *CreepSystem) Update(e gohan.Entity) error {
 	if !world.World.GameStarted {
 		return nil
 	}
 
-	creep := component.Creep(ctx)
-	position := component.Position(ctx)
+	creep := s.Creep
+	position := s.Position
 
 	if creep.Health <= 0 {
-		for i, e := range world.World.CreepEntities {
-			if e == ctx.Entity {
+		for i, ent := range world.World.CreepEntities {
+			if ent == e {
 				asset.SoundCreepDie.Rewind()
 				asset.SoundCreepDie.Play()
 
 				world.World.CreepRects = append(world.World.CreepRects[:i], world.World.CreepRects[i+1:]...)
 				world.World.CreepEntities = append(world.World.CreepEntities[:i], world.World.CreepEntities[i+1:]...)
-				ctx.RemoveEntity()
+				e.Remove()
 				return nil
 			}
 		}
@@ -105,18 +97,17 @@ func (s *CreepSystem) Update(ctx *gohan.Context) error {
 	if creep.DamageTicks > 0 {
 		creep.DamageTicks--
 
-		sprite := ECS.Component(ctx.Entity, component.SpriteComponentID)
+		sprite := s.Sprite
 		if sprite != nil {
-			sp := sprite.(*component.SpriteComponent)
 			if creep.DamageTicks > 0 {
 				if creep.DamageTicks%2 == 0 {
-					sp.ColorScale = 100
+					sprite.ColorScale = 100
 				} else {
-					sp.ColorScale = .01
+					sprite.ColorScale = .01
 				}
-				sp.OverrideColorScale = true
+				sprite.OverrideColorScale = true
 			} else {
-				sp.OverrideColorScale = false
+				sprite.OverrideColorScale = false
 			}
 		}
 	}
@@ -124,6 +115,6 @@ func (s *CreepSystem) Update(ctx *gohan.Context) error {
 	return nil
 }
 
-func (_ *CreepSystem) Draw(_ *gohan.Context, screen *ebiten.Image) error {
-	return gohan.ErrSystemWithoutDraw
+func (_ *CreepSystem) Draw(_ gohan.Entity, _ *ebiten.Image) error {
+	return gohan.ErrUnregister
 }

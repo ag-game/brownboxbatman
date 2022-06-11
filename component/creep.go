@@ -2,12 +2,9 @@ package component
 
 import (
 	"math/rand"
-
-	. "code.rocketnine.space/tslocum/brownboxbatman/ecs"
-	"code.rocketnine.space/tslocum/gohan"
 )
 
-type CreepComponent struct {
+type Creep struct {
 	Type   int
 	Active bool
 
@@ -31,17 +28,3 @@ const (
 	CreepMediumRock
 	CreepLargeRock
 )
-
-var CreepComponentID = ECS.NewComponentID()
-
-func (p *CreepComponent) ComponentID() gohan.ComponentID {
-	return CreepComponentID
-}
-
-func Creep(ctx *gohan.Context) *CreepComponent {
-	c, ok := ctx.Component(CreepComponentID).(*CreepComponent)
-	if !ok {
-		return nil
-	}
-	return c
-}
